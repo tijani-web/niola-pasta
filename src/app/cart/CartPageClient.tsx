@@ -35,6 +35,13 @@ export default function CartPageClient() {
     )
   }
 
+  const EXTRAS = [
+    { id: 'extra-plantain', name: 'Fried Plantain', price: 1000 },
+    { id: 'extra-sausage', name: 'Sausage', price: 500 },
+    { id: 'extra-egg', name: 'Boiled Egg', price: 500 },
+    { id: 'extra-turkey', name: 'Extra Turkey', price: 2000 },
+  ]
+
   return (
     <div className="min-h-screen bg-background py-10">
       <div className="max-w-4xl mx-auto px-4 sm:px-6">
@@ -46,8 +53,9 @@ export default function CartPageClient() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Items */}
+          {/* Items + Extras column */}
           <div className="lg:col-span-2 space-y-4">
+            {/* Cart Items */}
             {items.map(item => {
               const extrasTotal = item.extras?.reduce((s, e) => s + e.price, 0) || 0
               const itemTotal = (item.price + extrasTotal) * item.quantity
@@ -97,80 +105,72 @@ export default function CartPageClient() {
                   </div>
                 </div>
               )
-          </div>
+            })}
 
-          {/* Extra Toppings Upsell */}
-          <div className="bg-white rounded-2xl border border-primary/10 shadow-sm p-6 mt-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="font-serif font-bold text-xl text-primary">Extra Toppings</h2>
-              <div className="flex items-center gap-1">
-                <button 
-                  onClick={() => {
-                    const el = document.getElementById('cart-extras')
-                    if (el) el.scrollBy({ left: -200, behavior: 'smooth' })
-                  }} 
-                  className="p-1.5 rounded-full hover:bg-gray-100 text-gray-500 transition-colors"
-                >
-                  <ChevronLeft className="w-5 h-5" />
-                </button>
-                <button 
-                  onClick={() => {
-                    const el = document.getElementById('cart-extras')
-                    if (el) el.scrollBy({ left: 200, behavior: 'smooth' })
-                  }} 
-                  className="p-1.5 rounded-full hover:bg-gray-100 text-gray-500 transition-colors"
-                >
-                  <ChevronRight className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
-            
-            <div 
-              id="cart-extras"
-              className="flex overflow-x-auto gap-4 pb-2 snap-x" 
-              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-            >
-              <style dangerouslySetInnerHTML={{__html: `
-                #cart-extras::-webkit-scrollbar { display: none; }
-              `}} />
-              {[
-                { id: 'extra-plantain', name: 'Fried Plantain', price: 1000 },
-                { id: 'extra-sausage', name: 'Sausage', price: 500 },
-                { id: 'extra-egg', name: 'Boiled Egg', price: 500 },
-                { id: 'extra-turkey', name: 'Extra Turkey', price: 2000 },
-              ].map((extra) => (
-                <div 
-                  key={extra.id}
-                  className="min-w-[200px] flex flex-col justify-between p-4 rounded-2xl border-2 border-primary/10 bg-white hover:border-primary/30 shadow-sm hover:shadow snap-start transition-all"
-                >
-                  <div className="flex items-start gap-3 mb-4">
-                    <div className="w-12 h-12 rounded-xl bg-primary/5 flex items-center justify-center text-xl flex-shrink-0">
-                      🥣
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-sm text-foreground leading-tight line-clamp-2">{extra.name}</h4>
-                      <p className="text-foreground/60 text-sm mt-1">₦{extra.price.toLocaleString()}</p>
-                    </div>
-                  </div>
+            {/* Extra Toppings Upsell */}
+            <div className="bg-white rounded-2xl border border-primary/10 shadow-sm p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="font-serif font-bold text-xl text-primary">Extra Toppings</h2>
+                <div className="flex items-center gap-1">
                   <button
                     onClick={() => {
-                      useCartStore.getState().addItem({
-                        menuItemId: extra.id,
-                        name: extra.name,
-                        price: extra.price,
-                        quantity: 1,
-                        imageUrl: null
-                      })
+                      const el = document.getElementById('cart-extras')
+                      if (el) el.scrollBy({ left: -200, behavior: 'smooth' })
                     }}
-                    className="w-full py-2.5 rounded-xl text-sm font-bold bg-primary text-white hover:bg-accent transition-all"
+                    className="p-1.5 rounded-full hover:bg-gray-100 text-gray-500 transition-colors"
                   >
-                    + Add
+                    <ChevronLeft className="w-5 h-5" />
+                  </button>
+                  <button
+                    onClick={() => {
+                      const el = document.getElementById('cart-extras')
+                      if (el) el.scrollBy({ left: 200, behavior: 'smooth' })
+                    }}
+                    className="p-1.5 rounded-full hover:bg-gray-100 text-gray-500 transition-colors"
+                  >
+                    <ChevronRight className="w-5 h-5" />
                   </button>
                 </div>
-              ))}
+              </div>
+
+              <div
+                id="cart-extras"
+                className="flex overflow-x-auto gap-4 pb-2 snap-x"
+                style={{ scrollbarWidth: 'none' } as React.CSSProperties}
+              >
+                {EXTRAS.map((extra) => (
+                  <div
+                    key={extra.id}
+                    className="min-w-[200px] flex flex-col justify-between p-4 rounded-2xl border-2 border-primary/10 bg-white hover:border-primary/30 shadow-sm hover:shadow snap-start transition-all"
+                  >
+                    <div className="flex items-start gap-3 mb-4">
+                      <div className="w-12 h-12 rounded-xl bg-primary/5 flex items-center justify-center text-xl flex-shrink-0">
+                        🥣
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-sm text-foreground leading-tight">{extra.name}</h4>
+                        <p className="text-foreground/60 text-sm mt-1">₦{extra.price.toLocaleString()}</p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => {
+                        useCartStore.getState().addItem({
+                          menuItemId: extra.id,
+                          name: extra.name,
+                          price: extra.price,
+                          quantity: 1,
+                          imageUrl: null
+                        })
+                      }}
+                      className="w-full py-2.5 rounded-xl text-sm font-bold bg-primary text-white hover:bg-accent transition-all"
+                    >
+                      + Add
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
 
           {/* Summary */}
           <div className="lg:col-span-1">

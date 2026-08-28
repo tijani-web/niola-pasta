@@ -20,7 +20,7 @@ export function ReviewForm({ menuItemId }: { menuItemId: string }) {
     setError(null)
 
     const supabase = createClient()
-    const { error: err } = await supabase.from('reviews').insert({
+    const { error: err } = await (supabase.from('reviews') as any).insert({
       menu_item_id: menuItemId,
       customer_name: name,
       rating,
