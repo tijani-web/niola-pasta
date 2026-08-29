@@ -36,10 +36,12 @@ export default function CartPageClient() {
   }
 
   const EXTRAS = [
-    { id: 'extra-plantain', name: 'Fried Plantain', price: 1000 },
-    { id: 'extra-sausage', name: 'Sausage', price: 500 },
-    { id: 'extra-egg', name: 'Boiled Egg', price: 500 },
-    { id: 'extra-turkey', name: 'Extra Turkey', price: 2000 },
+    { id: 'extra-pasta', name: 'Extra Pasta', price: 300 },
+    { id: 'extra-chicken', name: 'Extra Chicken', price: 1300 },
+    { id: 'extra-plantain', name: 'Extra Plantain', price: 500 },
+    { id: 'extra-sausage', name: 'Extra Sausage', price: 500 },
+    { id: 'extra-egg', name: 'Extra Egg', price: 500 },
+    { id: 'extra-veggies', name: 'Extra Veggies', price: 0 },
   ]
 
   return (

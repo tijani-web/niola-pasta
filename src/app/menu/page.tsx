@@ -23,7 +23,7 @@ export default async function MenuPage() {
   ]
 
   // Group items
-  const categories = ['Big Plate', 'Budget Plate', 'Small Plate', 'Combo', 'Sides']
+  const categories = ['Big Plate', 'Budget Plate', 'Small Plate', 'Combo', 'Sides', 'Extras']
   
   return (
     <div className="bg-white min-h-screen pb-24">

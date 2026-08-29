@@ -7,7 +7,7 @@ import { ArrowRight, Truck, Clock, Star, Shield } from 'lucide-react'
 export default async function Home() {
   const items = await getMenuItems()
 
-  const categories = ['Big Plate', 'Budget Plate', 'Small Plate', 'Combo', 'Sides']
+  const categories = ['Big Plate', 'Budget Plate', 'Small Plate', 'Combo', 'Sides', 'Extras']
 
   return (
     <div className="flex flex-col min-h-screen">
