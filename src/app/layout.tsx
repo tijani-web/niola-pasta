@@ -79,6 +79,9 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
+  verification: {
+    google: '149Os4eJIqdmMNkX7m0SHRRhP3CCytXEVQjEysTyt8E',
+  },
 };
 
 const restaurantJsonLd = {
