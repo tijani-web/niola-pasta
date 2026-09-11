@@ -46,7 +46,7 @@ export default function CheckoutForm() {
         paystackReference: reference.reference
       })
       clearCart()
-      router.push(`/track/${token}`)
+      router.push(`/order-confirmation/${token}`)
     } catch {
       alert('Payment received but order creation failed. Please contact support with your payment reference.')
       setIsProcessing(false)

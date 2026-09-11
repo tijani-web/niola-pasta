@@ -3,24 +3,24 @@
 import { useState, useEffect, useCallback } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react'
+import { ArrowRight, ChevronLeft, ChevronRight, Leaf, UtensilsCrossed, Truck, Heart } from 'lucide-react'
 
 const GALLERY = [
   {
-    src: 'https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?auto=format&fit=crop&q=80&w=600',
+    src: '/niolas-img/HeroSectionImage/hero.jpeg',
+    label: 'Niola\'s Signature Pasta'
+  },
+  {
+    src: '/niolas-img/HeroSectionImage/hero1.jpeg',
     label: 'Chicken & Plantain Pasta'
   },
   {
-    src: 'https://images.unsplash.com/photo-1555949258-eb67b1ef0ceb?auto=format&fit=crop&q=80&w=600',
-    label: 'Chicken Pasta'
+    src: '/niolas-img/HeroSectionImage/hero2.jpeg',
+    label: 'Peppered Chicken Special'
   },
   {
-    src: 'https://images.unsplash.com/photo-1626844131082-256783844137?auto=format&fit=crop&q=80&w=600',
-    label: 'Chicken & Sausage Pasta'
-  },
-  {
-    src: 'https://images.unsplash.com/photo-1608897013039-887f21d8c804?auto=format&fit=crop&q=80&w=600',
-    label: 'Sardine Special'
+    src: '/niolas-img/HeroSectionImage/hero4.jpeg',
+    label: 'Loaded Sardine Special'
   },
 ]
 
@@ -90,21 +90,43 @@ export function Hero() {
               </Link>
             </div>
 
-            {/* Social proof strip */}
-            <div className="flex items-center gap-6 justify-center lg:justify-start pt-2">
-              <div>
-                <div className="text-highlight text-lg tracking-wider">★★★★★</div>
-                <div className="text-white/60 text-xs mt-0.5">100+ happy customers</div>
+            {/* Features Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-6 gap-x-8 pt-8 mt-4 border-t border-white/10 lg:max-w-xl">
+              <div className="flex items-start gap-4">
+                <div className="mt-0.5 bg-highlight/20 p-2.5 rounded-xl text-highlight flex-shrink-0">
+                  <Leaf className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="font-bold text-white text-base">Fresh & Quality</div>
+                  <div className="text-white/60 text-sm mt-0.5 leading-tight">Only the best ingredients</div>
+                </div>
               </div>
-              <div className="w-px h-10 bg-white/20" />
-              <div>
-                <div className="font-bold text-white text-lg">Fast</div>
-                <div className="text-white/60 text-xs mt-0.5">Fresh to order</div>
+              <div className="flex items-start gap-4">
+                <div className="mt-0.5 bg-highlight/20 p-2.5 rounded-xl text-highlight flex-shrink-0">
+                  <UtensilsCrossed className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="font-bold text-white text-base">Expertly Cooked</div>
+                  <div className="text-white/60 text-sm mt-0.5 leading-tight">Perfect taste every time</div>
+                </div>
               </div>
-              <div className="w-px h-10 bg-white/20" />
-              <div>
-                <div className="font-bold text-white text-lg">₦500+</div>
-                <div className="text-white/60 text-xs mt-0.5">Starting price</div>
+              <div className="flex items-start gap-4">
+                <div className="mt-0.5 bg-highlight/20 p-2.5 rounded-xl text-highlight flex-shrink-0">
+                  <Truck className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="font-bold text-white text-base">Fast Delivery</div>
+                  <div className="text-white/60 text-sm mt-0.5 leading-tight">Hot food right to you</div>
+                </div>
+              </div>
+              <div className="flex items-start gap-4">
+                <div className="mt-0.5 bg-highlight/20 p-2.5 rounded-xl text-highlight flex-shrink-0">
+                  <Heart className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="font-bold text-white text-base">Made with Love</div>
+                  <div className="text-white/60 text-sm mt-0.5 leading-tight">Food that feels like home</div>
+                </div>
               </div>
             </div>
           </div>

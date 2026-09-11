@@ -35,6 +35,11 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
+  icons: {
+    icon: '/logo.png',
+    shortcut: '/logo.png',
+    apple: '/logo.png',
+  },
   openGraph: {
     title: "Niola's Pasta — Osogbo's Finest Stir-Fried Pasta",
     description: "Flavour-packed stir-fried pasta made fresh to order in Osogbo.",
@@ -44,7 +49,7 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: 'https://images.unsplash.com/photo-1555949258-eb67b1ef0ceb?auto=format&fit=crop&q=80&w=1200',
+        url: '/niolas-img/HeroSectionImage/hero.jpeg',
         width: 1200,
         height: 630,
         alt: "Niola's Pasta Signature Dish",
@@ -55,7 +60,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: "Niola's Pasta — Osogbo's Finest Stir-Fried Pasta",
     description: "Flavour-packed stir-fried pasta made fresh to order in Osogbo.",
-    images: ['https://images.unsplash.com/photo-1555949258-eb67b1ef0ceb?auto=format&fit=crop&q=80&w=1200'],
+    images: ['/niolas-img/HeroSectionImage/hero.jpeg'],
   },
   robots: {
     index: true,

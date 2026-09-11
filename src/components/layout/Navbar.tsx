@@ -2,11 +2,13 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { ShoppingCart, Menu, X } from 'lucide-react'
 import { useCartStore } from '@/store/useCartStore'
 import { motion, AnimatePresence } from 'framer-motion'
 
 const NAV_LINKS = [
+  { href: '/', label: 'Home' },
   { href: '/menu', label: 'Menu' },
   { href: '/about', label: 'About' },
   { href: '/contact', label: 'Contact' },
@@ -37,9 +39,14 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 z-50">
-          <span className="font-serif text-2xl font-bold text-primary tracking-tight">
-            Niola&apos;s <span className="text-accent">Pasta</span>
-          </span>
+          <Image
+            src="/niolas-img/logo/logo.png"
+            alt="Niola's Pasta"
+            width={150}
+            height={60}
+            className="h-14 w-auto object-contain drop-shadow-sm"
+            priority
+          />
         </Link>
 
         {/* Desktop Nav */}

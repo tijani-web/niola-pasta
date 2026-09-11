@@ -7,7 +7,7 @@ import { ArrowRight, Truck, Clock, Star, Shield } from 'lucide-react'
 export default async function Home() {
   const items = await getMenuItems()
 
-  const categories = ['Big Plate', 'Budget Plate', 'Small Plate', 'Combo', 'Sides', 'Extras']
+  const categories = ['Big Plate', 'Small Plate', 'Budget Plate', "Niola's Gizzy", 'Combo', 'Sides', 'Extras']
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -126,10 +126,10 @@ export default async function Home() {
             {/* Right — Stats */}
             <div className="grid grid-cols-2 gap-4">
               {[
-                { value: '100+', label: 'Happy Customers', icon: '😊' },
-                { value: '10+', label: 'Menu Items', icon: '🍝' },
-                { value: '5★', label: 'Customer Rating', icon: '⭐' },
-                { value: 'Daily', label: 'Fresh Batches', icon: '🔥' },
+                { value: 'Made Fresh', label: 'Every Order, Every Time', icon: '🔥' },
+                { value: 'Premium', label: 'Quality Ingredients Only', icon: '✨' },
+                { value: '5-Star', label: 'Customer Experience', icon: '⭐' },
+                { value: 'Same Day', label: 'Delivery Available', icon: '🚀' },
               ].map(s => (
                 <div key={s.label} className="bg-white/10 backdrop-blur-sm border border-white/10 rounded-2xl p-6 text-center hover:bg-white/15 transition-colors">
                   <div className="text-3xl mb-2">{s.icon}</div>

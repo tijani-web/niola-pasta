@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { Phone, MapPin } from 'lucide-react'
 
 export function Footer() {
@@ -9,9 +10,15 @@ export function Footer() {
           {/* Brand */}
           <div className="md:col-span-1 space-y-4">
             <Link href="/" className="inline-block">
-              <span className="font-serif text-2xl font-bold text-white tracking-tight">
-                Niola&apos;s <span className="text-accent">Pasta</span>
-              </span>
+              <div className="bg-white/10 rounded-2xl p-3 inline-block border border-white/10">
+                <Image
+                  src="/niolas-img/logo/logo.png"
+                  alt="Niola's Pasta"
+                  width={130}
+                  height={52}
+                  className="h-14 w-auto object-contain"
+                />
+              </div>
             </Link>
             <p className="text-white/80 text-sm">
               The best stir-fried pasta in Osogbo. Fresh, hot, and packed with flavour.
@@ -66,16 +73,17 @@ export function Footer() {
               <a href="https://www.facebook.com/share/1BxBDjubvq/" target="_blank" rel="noopener noreferrer" className="p-2 bg-white/10 rounded-full hover:bg-accent transition-colors text-white">
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fillRule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" clipRule="evenodd" /></svg>
               </a>
-              {/* Note: TikTok icon isn't in default lucide-react without custom SVG, using standard links */}
-              <a href="https://vm.tiktok.com/ZS9kphQGQBAP5-mYq6M/" target="_blank" rel="noopener noreferrer" className="p-2 bg-white/10 rounded-full hover:bg-accent transition-colors text-white font-bold text-xs flex items-center justify-center w-9 h-9">
-                TK
+              <a href="https://vm.tiktok.com/ZS9kphQGQBAP5-mYq6M/" target="_blank" rel="noopener noreferrer" className="p-2 bg-white/10 rounded-full hover:bg-accent transition-colors text-white flex items-center justify-center w-9 h-9">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-5.2 1.74 2.89 2.89 0 012.31-4.64 2.93 2.93 0 01.88.13V9.4a6.84 6.84 0 00-1-.05A6.33 6.33 0 005 20.1a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 004.77 1.52v-3.4a4.85 4.85 0 01-1-.1z" />
+                </svg>
               </a>
             </div>
           </div>
         </div>
 
         <div className="border-t border-white/10 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-white/60">
-          <p>&copy; {new Date().getFullYear()} Niola's Pasta. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Niola&apos;s Pasta. All rights reserved.</p>
           <p>Delivery fee is paid directly to the dispatch rider.</p>
         </div>
       </div>
