@@ -88,13 +88,13 @@ const restaurantJsonLd = {
   image: 'https://niolaspasta.com/niolas-img/HeroSectionImage/hero.jpeg',
   '@id': 'https://niolaspasta.com',
   url: 'https://niolaspasta.com',
-  telephone: '+2347030462283',
+  telephone: '07030462283',
   address: {
     '@type': 'PostalAddress',
     streetAddress: 'Osogbo',
     addressLocality: 'Osogbo',
     addressRegion: 'OS',
-    postalCode: '230101',
+    postalCode: '230001',
     addressCountry: 'NG'
   },
   geo: {
