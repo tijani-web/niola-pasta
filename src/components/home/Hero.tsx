@@ -8,19 +8,19 @@ import { ArrowRight, ChevronLeft, ChevronRight, Leaf, UtensilsCrossed, Truck, He
 const GALLERY = [
   {
     src: '/niolas-img/HeroSectionImage/hero.jpeg',
-    label: 'Niola\'s Signature Pasta'
+    label: 'Niola\'s Signature Pasta in Osogbo'
   },
   {
     src: '/niolas-img/HeroSectionImage/hero1.jpeg',
-    label: 'Chicken & Plantain Pasta'
+    label: 'Stir-fried Chicken & Plantain Pasta'
   },
   {
     src: '/niolas-img/HeroSectionImage/hero2.jpeg',
-    label: 'Peppered Chicken Special'
+    label: 'Peppered Chicken Special Delivery'
   },
   {
     src: '/niolas-img/HeroSectionImage/hero4.jpeg',
-    label: 'Loaded Sardine Special'
+    label: 'Loaded Sardine Pasta Special'
   },
 ]
 
