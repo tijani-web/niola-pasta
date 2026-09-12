@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useCartStore } from '@/store/useCartStore'
 import { useRouter } from 'next/navigation'
 import { usePaystackPayment } from 'react-paystack'
@@ -17,12 +17,12 @@ export default function CheckoutForm() {
   const [formData, setFormData] = useState({ name: '', phone: '', email: '', address: '' })
   const [deliveryMethod, setDeliveryMethod] = useState<'delivery'|'pickup'>('delivery')
   const [termsAccepted, setTermsAccepted] = useState(false)
-  const [isSuccess, setIsSuccess] = useState(false)
+  const isSuccessRef = useRef(false)
 
   useEffect(() => {
     setMounted(true)
-    if (items.length === 0 && !isSuccess) router.push('/menu')
-  }, [items.length, router, isSuccess])
+    if (items.length === 0 && !isSuccessRef.current) router.push('/menu')
+  }, [items.length, router])
 
   const subtotal = getSubtotal()
 
@@ -46,7 +46,7 @@ export default function CheckoutForm() {
         subtotal,
         paystackReference: reference.reference
       })
-      setIsSuccess(true)
+      isSuccessRef.current = true
       clearCart()
       router.push(`/order-confirmation/${token}`)
     } catch {
