@@ -17,11 +17,12 @@ export default function CheckoutForm() {
   const [formData, setFormData] = useState({ name: '', phone: '', email: '', address: '' })
   const [deliveryMethod, setDeliveryMethod] = useState<'delivery'|'pickup'>('delivery')
   const [termsAccepted, setTermsAccepted] = useState(false)
+  const [isSuccess, setIsSuccess] = useState(false)
 
   useEffect(() => {
     setMounted(true)
-    if (items.length === 0) router.push('/menu')
-  }, [items.length, router])
+    if (items.length === 0 && !isSuccess) router.push('/menu')
+  }, [items.length, router, isSuccess])
 
   const subtotal = getSubtotal()
 
@@ -45,6 +46,7 @@ export default function CheckoutForm() {
         subtotal,
         paystackReference: reference.reference
       })
+      setIsSuccess(true)
       clearCart()
       router.push(`/order-confirmation/${token}`)
     } catch {
