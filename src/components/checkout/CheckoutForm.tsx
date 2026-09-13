@@ -32,6 +32,7 @@ export default function CheckoutForm() {
     amount: subtotal,
     currency: 'NGN',
     payment_options: 'card,banktransfer,ussd',
+    redirect_url: undefined, // Prevent hard redirect
     customer: {
       email: formData.email || 'guest@niolaspasta.com',
       phone_number: formData.phone,
@@ -58,6 +59,7 @@ export default function CheckoutForm() {
           isSuccessRef.current = true
           
           try {
+            console.log("Attempting to create order in database...")
             const token = await createOrder({
               customerName: formData.name,
               customerPhone: formData.phone,
@@ -67,6 +69,7 @@ export default function CheckoutForm() {
               subtotal,
               paystackReference: response.transaction_id.toString()
             })
+            console.log("Order created successfully:", token)
             
             // Close modal only after order is created securely
             closePaymentModal()
@@ -74,9 +77,10 @@ export default function CheckoutForm() {
             // Replace checkout so the browser cannot return to an empty cart.
             clearCart()
             router.replace(`/order-confirmation/${token}`)
-          } catch {
+          } catch (err) {
+            console.error("ORDER CREATION FAILED:", err)
             closePaymentModal()
-            alert('Payment received but order creation failed. Please contact support with your payment reference.')
+            alert('Payment received but database rejected the order. Please contact support.')
             setIsProcessing(false)
           }
         } else {
