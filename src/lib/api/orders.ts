@@ -5,13 +5,15 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { Json } from '@/types/database'
 
 interface CreateOrderParams {
+  orderToken: string
   customerName: string
   customerPhone: string
   customerEmail: string | null
   deliveryAddress: string
   items: any[]
   subtotal: number
-  paystackReference: string
+  paystackReference?: string
+  paymentStatus?: 'PENDING' | 'PAID'
 }
 
 import { Resend } from 'resend'
@@ -145,21 +147,18 @@ async function sendNotifications(token: string, params: CreateOrderParams) {
 export async function createOrder(params: CreateOrderParams) {
   const supabase = await createClient()
   
-  // Generate a random token
-  const orderToken = `NP-${Math.floor(1000 + Math.random() * 9000)}-${Date.now().toString().slice(-4)}`
-  
   const { data, error } = await supabase
     .from('orders')
     .insert({
-      order_token: orderToken,
+      order_token: params.orderToken,
       customer_name: params.customerName,
       customer_phone: params.customerPhone,
       customer_email: params.customerEmail,
       delivery_address: params.deliveryAddress,
       items: params.items as Json,
       subtotal: params.subtotal,
-      paystack_reference: params.paystackReference,
-      payment_status: 'PAID',
+      paystack_reference: params.paystackReference || null,
+      payment_status: params.paymentStatus || 'PAID',
       order_status: 'Pending Confirmation'
     } as any)
     .select('order_token')
@@ -171,7 +170,9 @@ export async function createOrder(params: CreateOrderParams) {
   }
   
   // Await notifications so Vercel doesn't terminate before they send
-  await sendNotifications(data.order_token, params)
+  if (params.paymentStatus !== 'PENDING') {
+    await sendNotifications(data.order_token, params)
+  }
   
   return data.order_token
 }
@@ -190,4 +191,37 @@ export async function getOrderByToken(token: string) {
   }
   
   return data
+}
+
+export async function markOrderPaid(token: string, txRef: string) {
+  const supabase = await createClient()
+  
+  const { data, error } = await supabase
+    .from('orders')
+    .update({ 
+      payment_status: 'PAID',
+      paystack_reference: txRef
+    } as any)
+    .eq('order_token', token)
+    .select()
+    .single() as any
+    
+  if (error) {
+    console.error('Failed to mark order paid:', error)
+    throw new Error('Failed to mark order paid')
+  }
+
+  if (data) {
+    await sendNotifications(token, {
+      customerName: data.customer_name,
+      customerPhone: data.customer_phone,
+      customerEmail: data.customer_email,
+      deliveryAddress: data.delivery_address,
+      items: data.items,
+      subtotal: data.subtotal,
+      paymentStatus: 'PAID'
+    })
+  }
+
+  return true
 }

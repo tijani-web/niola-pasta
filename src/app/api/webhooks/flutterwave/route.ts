@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server'
-import { createAdminClient } from '@/lib/supabase/admin'
 
 export async function POST(request: Request) {
   try {
@@ -15,14 +14,14 @@ export async function POST(request: Request) {
     const event = JSON.parse(text)
     
     if (event.event === 'charge.completed' && event.data.status === 'successful') {
-      const reference = event.data.id.toString() // Flutterwave sends 'id' as the transaction_id
-      
-      const supabase = createAdminClient()
+      const txRef = event.data.tx_ref // Our order_token was passed as tx_ref
+      const transactionId = event.data.id.toString()
       
       // Update order status based on successful payment
-      await (supabase.from('orders') as any)
-        .update({ payment_status: 'PAID', order_status: 'Pending Confirmation' })
-        .eq('paystack_reference', reference)
+      if (txRef) {
+        const { markOrderPaid } = await import('@/lib/api/orders')
+        await markOrderPaid(txRef, transactionId)
+      }
     }
     
     return NextResponse.json({ status: 'success' })

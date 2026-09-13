@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useCartStore } from '@/store/useCartStore'
 import { useRouter } from 'next/navigation'
-import { useFlutterwave, closePaymentModal } from 'flutterwave-react-v3'
+import Script from 'next/script'
 import { ArrowLeft, CreditCard, Loader2, Trash2, Minus, Plus, ShieldCheck, Info, ChevronLeft, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -26,80 +26,83 @@ export default function CheckoutForm() {
 
   const subtotal = getSubtotal()
 
-  const config = {
-    public_key: process.env.NEXT_PUBLIC_FLUTTERWAVE_PUBLIC_KEY || '',
-    tx_ref: `NP-${new Date().getTime()}`,
-    amount: subtotal,
-    currency: 'NGN',
-    payment_options: 'card,banktransfer,ussd',
-    redirect_url: typeof window !== 'undefined' ? `${window.location.origin}${window.location.pathname}#success` : undefined, // Force hash-only redirect to prevent page reload
-    customer: {
-      email: formData.email || 'guest@niolaspasta.com',
-      phone_number: formData.phone,
-      name: formData.name,
-    },
-    customizations: {
-      title: "Niola's Pasta",
-      description: 'Payment for your order',
-      logo: 'https://niolaspasta.com/icon.png',
-    },
-  }
-
-  const handleFlutterPayment = useFlutterwave(config as any)
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!termsAccepted) return
     setIsProcessing(true)
 
-    handleFlutterPayment({
-      callback: async (response) => {
-        if (response.status === 'successful') {
-          // Immediately set success flag so NO guards can redirect us
-          isSuccessRef.current = true
-          
-          try {
-            console.log("Attempting to create order in database...")
-            const token = await createOrder({
-              customerName: formData.name,
-              customerPhone: formData.phone,
-              customerEmail: formData.email,
-              deliveryAddress: deliveryMethod === 'pickup' ? 'PICKUP' : formData.address,
-              items,
-              subtotal,
-              paystackReference: response.transaction_id.toString()
-            })
-            console.log("Order created successfully:", token)
-            
-            // Close modal only after order is created securely
-            closePaymentModal()
-            
-            // Replace checkout so the browser cannot return to an empty cart.
+    try {
+      // 1. Generate Order Token
+      const orderToken = `NP-${Math.floor(1000 + Math.random() * 9000)}-${Date.now().toString().slice(-4)}`
+      
+      console.log("Attempting to create pending order in database...")
+      // 2. Create the order in the database FIRST (Status: PENDING)
+      await createOrder({
+        orderToken,
+        customerName: formData.name,
+        customerPhone: formData.phone,
+        customerEmail: formData.email,
+        deliveryAddress: deliveryMethod === 'pickup' ? 'PICKUP' : formData.address,
+        items,
+        subtotal,
+        paymentStatus: 'PENDING' // Explicitly set to pending
+      })
+      console.log("Pending order created successfully:", orderToken)
+      
+      // 3. Launch Flutterwave Checkout with the created orderToken
+      const fwConfig = {
+        public_key: process.env.NEXT_PUBLIC_FLUTTERWAVE_PUBLIC_KEY || '',
+        tx_ref: orderToken,
+        amount: subtotal,
+        currency: 'NGN',
+        payment_options: 'card,banktransfer,ussd',
+        // Redirect completely to the order confirmation page. Webhook handles the rest!
+        redirect_url: typeof window !== 'undefined' ? `${window.location.origin}/order-confirmation/${orderToken}` : undefined,
+        customer: {
+          email: formData.email || 'guest@niolaspasta.com',
+          phone_number: formData.phone,
+          name: formData.name,
+        },
+        customizations: {
+          title: "Niola's Pasta",
+          description: 'Payment for your order',
+          logo: 'https://niolaspasta.com/icon.png',
+        },
+        callback: function (data: any) {
+          // In case it doesn't hard-redirect (fallback)
+          if (data.status === 'successful') {
+            isSuccessRef.current = true
             clearCart()
-            router.replace(`/order-confirmation/${token}`)
-          } catch (err) {
-            console.error("ORDER CREATION FAILED:", err)
-            closePaymentModal()
-            alert('Payment received but database rejected the order. Please contact support.')
+            window.location.href = `/order-confirmation/${orderToken}`
+          }
+        },
+        onclose: function() {
+          if (!isSuccessRef.current) {
             setIsProcessing(false)
           }
-        } else {
-          closePaymentModal()
-          setIsProcessing(false)
         }
-      },
-      onClose: () => {
-        if (!isSuccessRef.current) {
-          setIsProcessing(false)
-        }
-      },
-    })
+      }
+
+      // @ts-ignore
+      if (typeof window !== 'undefined' && window.FlutterwaveCheckout) {
+        // @ts-ignore
+        window.FlutterwaveCheckout(fwConfig)
+      } else {
+        throw new Error("Flutterwave SDK not loaded")
+      }
+
+    } catch (err) {
+      console.error("ORDER CREATION FAILED:", err)
+      alert('Failed to initialize checkout. Please check your connection and try again.')
+      setIsProcessing(false)
+    }
   }
 
   if (!mounted || items.length === 0) return null
 
   return (
     <div className="min-h-screen bg-background py-8">
+      <Script src="https://checkout.flutterwave.com/v3.js" strategy="beforeInteractive" />
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <Link href="/menu" className="inline-flex items-center gap-2 text-foreground/60 hover:text-accent mb-8 transition-colors font-medium group">
           <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
