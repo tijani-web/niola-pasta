@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useCartStore } from '@/store/useCartStore'
 import { useRouter } from 'next/navigation'
-import { usePaystackPayment } from 'react-paystack'
+import { useFlutterwave, closePaymentModal } from 'flutterwave-react-v3'
 import { ArrowLeft, CreditCard, Loader2, Trash2, Minus, Plus, ShieldCheck, Info, ChevronLeft, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -27,41 +27,59 @@ export default function CheckoutForm() {
   const subtotal = getSubtotal()
 
   const config = {
-    reference: `NP-${new Date().getTime()}`,
-    email: formData.email || 'guest@niolaspasta.com',
-    amount: subtotal * 100,
-    publicKey: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || '',
+    public_key: process.env.NEXT_PUBLIC_FLUTTERWAVE_PUBLIC_KEY || '',
+    tx_ref: `NP-${new Date().getTime()}`,
+    amount: subtotal,
+    currency: 'NGN',
+    payment_options: 'card,banktransfer,ussd',
+    customer: {
+      email: formData.email || 'guest@niolaspasta.com',
+      phone_number: formData.phone,
+      name: formData.name,
+    },
+    customizations: {
+      title: "Niola's Pasta",
+      description: 'Payment for your order',
+      logo: 'https://niolaspasta.com/icon.png',
+    },
   }
 
-  const initializePayment = usePaystackPayment(config)
-
-  const onSuccess = async (reference: any) => {
-    try {
-      const token = await createOrder({
-        customerName: formData.name,
-        customerPhone: formData.phone,
-        customerEmail: formData.email,
-        deliveryAddress: deliveryMethod === 'pickup' ? 'PICKUP' : formData.address,
-        items,
-        subtotal,
-        paystackReference: reference.reference
-      })
-      isSuccessRef.current = true
-      clearCart()
-      router.push(`/order-confirmation/${token}`)
-    } catch {
-      alert('Payment received but order creation failed. Please contact support with your payment reference.')
-      setIsProcessing(false)
-    }
-  }
-
-  const onClose = () => setIsProcessing(false)
+  const handleFlutterPayment = useFlutterwave(config as any)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!termsAccepted) return
     setIsProcessing(true)
-    initializePayment({ onSuccess, onClose } as any)
+
+    handleFlutterPayment({
+      callback: async (response) => {
+        closePaymentModal()
+        if (response.status === 'successful') {
+          try {
+            const token = await createOrder({
+              customerName: formData.name,
+              customerPhone: formData.phone,
+              customerEmail: formData.email,
+              deliveryAddress: deliveryMethod === 'pickup' ? 'PICKUP' : formData.address,
+              items,
+              subtotal,
+              paystackReference: response.transaction_id.toString()
+            })
+            isSuccessRef.current = true
+            clearCart()
+            router.push(`/order-confirmation/${token}`)
+          } catch {
+            alert('Payment received but order creation failed. Please contact support with your payment reference.')
+            setIsProcessing(false)
+          }
+        } else {
+          setIsProcessing(false)
+        }
+      },
+      onClose: () => {
+        setIsProcessing(false)
+      },
+    })
   }
 
   if (!mounted || items.length === 0) return null
@@ -312,9 +330,9 @@ export default function CheckoutForm() {
               {/* Payment */}
               <div className="px-6 pb-6 space-y-4">
                 <div className="bg-primary/5 rounded-xl p-4 text-center">
-                  <p className="text-xs text-foreground/60 font-semibold mb-2 uppercase tracking-wider">Secured by Paystack</p>
+                  <p className="text-xs text-foreground/60 font-semibold mb-2 uppercase tracking-wider">Secured by Flutterwave</p>
                   <div className="flex items-center justify-center gap-3">
-                    {['Mastercard', 'VISA', 'Verve'].map(b => (
+                    {['Bank Transfer', 'Mastercard', 'VISA'].map(b => (
                       <span key={b} className="text-xs font-bold bg-white border border-gray-200 px-2 py-1 rounded-md text-gray-600">{b}</span>
                     ))}
                   </div>
