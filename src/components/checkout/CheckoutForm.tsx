@@ -53,8 +53,10 @@ export default function CheckoutForm() {
 
     handleFlutterPayment({
       callback: async (response) => {
-        closePaymentModal()
         if (response.status === 'successful') {
+          // Immediately set success flag so NO guards can redirect us
+          isSuccessRef.current = true
+          
           try {
             const token = await createOrder({
               customerName: formData.name,
@@ -65,19 +67,27 @@ export default function CheckoutForm() {
               subtotal,
               paystackReference: response.transaction_id.toString()
             })
-            isSuccessRef.current = true
+            
+            // Close modal only after order is created securely
+            closePaymentModal()
+            
+            // Clear cart and push
             clearCart()
             router.push(`/order-confirmation/${token}`)
           } catch {
+            closePaymentModal()
             alert('Payment received but order creation failed. Please contact support with your payment reference.')
             setIsProcessing(false)
           }
         } else {
+          closePaymentModal()
           setIsProcessing(false)
         }
       },
       onClose: () => {
-        setIsProcessing(false)
+        if (!isSuccessRef.current) {
+          setIsProcessing(false)
+        }
       },
     })
   }
