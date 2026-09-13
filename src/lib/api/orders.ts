@@ -196,15 +196,15 @@ export async function getOrderByToken(token: string) {
 export async function markOrderPaid(token: string, txRef: string) {
   const supabase = await createClient()
 
-  const { data, error } = await supabase
+  const { data, error } = (await supabase
     .from('orders')
     .update({
       payment_status: 'PAID',
       paystack_reference: txRef
-    } as any)
+    })
     .eq('order_token', token)
     .select()
-    .single() as any
+    .single()) as any
 
   if (error) {
     console.error('Failed to mark order paid:', error)
@@ -213,6 +213,7 @@ export async function markOrderPaid(token: string, txRef: string) {
 
   if (data) {
     await sendNotifications(token, {
+      orderToken: token,
       customerName: data.customer_name,
       customerPhone: data.customer_phone,
       customerEmail: data.customer_email,
