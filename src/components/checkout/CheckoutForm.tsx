@@ -32,7 +32,7 @@ export default function CheckoutForm() {
     amount: subtotal,
     currency: 'NGN',
     payment_options: 'card,banktransfer,ussd',
-    redirect_url: undefined, // Prevent hard redirect
+    redirect_url: typeof window !== 'undefined' ? `${window.location.origin}${window.location.pathname}#success` : undefined, // Force hash-only redirect to prevent page reload
     customer: {
       email: formData.email || 'guest@niolaspasta.com',
       phone_number: formData.phone,
