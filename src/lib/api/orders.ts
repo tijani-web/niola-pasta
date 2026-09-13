@@ -201,7 +201,7 @@ export async function markOrderPaid(token: string, txRef: string) {
     .update({
       payment_status: 'PAID',
       paystack_reference: txRef
-    })
+    } as never)
     .eq('order_token', token)
     .select()
     .single()) as any
