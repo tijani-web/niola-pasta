@@ -71,9 +71,9 @@ export default function CheckoutForm() {
             // Close modal only after order is created securely
             closePaymentModal()
             
-            // Clear cart and push
+            // Replace checkout so the browser cannot return to an empty cart.
             clearCart()
-            router.push(`/order-confirmation/${token}`)
+            router.replace(`/order-confirmation/${token}`)
           } catch {
             closePaymentModal()
             alert('Payment received but order creation failed. Please contact support with your payment reference.')

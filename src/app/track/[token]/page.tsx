@@ -13,24 +13,13 @@ export async function generateMetadata({ params }: { params: Promise<{ token: st
 export default async function TrackOrderPage({ params }: { params: Promise<{ token: string }> }) {
   const token = (await params).token
   
-  // Real implementation:
   const dbOrder = await getOrderByToken(token)
-  
-  // Mock fallback for UI testing if DB isn't seeded/connected
-  const order = dbOrder || {
-    order_token: token,
-    customer_name: 'Guest',
-    order_status: 'Pending Confirmation',
-    subtotal: 3200,
-    items: [
-      { name: 'Chicken & Plantain Pasta', quantity: 1, price: 3200 }
-    ],
-    created_at: new Date().toISOString()
-  }
 
-  if (!order) {
+  if (!dbOrder) {
     notFound()
   }
+
+  const order = dbOrder
 
   const statuses = [
     { id: 'Pending Confirmation', label: 'Pending Confirmation', icon: Clock },

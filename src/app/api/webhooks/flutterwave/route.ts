@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 
 export async function POST(request: Request) {
   try {
@@ -17,7 +17,7 @@ export async function POST(request: Request) {
     if (event.event === 'charge.completed' && event.data.status === 'successful') {
       const reference = event.data.id.toString() // Flutterwave sends 'id' as the transaction_id
       
-      const supabase = await createClient()
+      const supabase = createAdminClient()
       
       // Update order status based on successful payment
       await (supabase.from('orders') as any)

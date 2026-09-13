@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { Json } from '@/types/database'
 
 interface CreateOrderParams {
@@ -130,7 +131,8 @@ async function sendNotifications(token: string, params: CreateOrderParams) {
           type: 'plain',
           api_key: process.env.TERMII_API_KEY,
           channel: 'dnd'
-        })
+        }),
+        signal: AbortSignal.timeout(10000),
       })
       const termiiData = await termiiRes.json()
       console.log('Termii result:', JSON.stringify(termiiData))
@@ -141,7 +143,7 @@ async function sendNotifications(token: string, params: CreateOrderParams) {
 }
 
 export async function createOrder(params: CreateOrderParams) {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   
   // Generate a random token
   const orderToken = `NP-${Math.floor(1000 + Math.random() * 9000)}-${Date.now().toString().slice(-4)}`
