@@ -143,7 +143,7 @@ async function sendNotifications(token: string, params: CreateOrderParams) {
 }
 
 export async function createOrder(params: CreateOrderParams) {
-  const supabase = createAdminClient()
+  const supabase = await createClient()
   
   // Generate a random token
   const orderToken = `NP-${Math.floor(1000 + Math.random() * 9000)}-${Date.now().toString().slice(-4)}`
