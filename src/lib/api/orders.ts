@@ -146,7 +146,7 @@ async function sendNotifications(token: string, params: CreateOrderParams) {
 
 export async function createOrder(params: CreateOrderParams) {
   const supabase = await createClient()
-  
+
   const { data, error } = await supabase
     .from('orders')
     .insert({
@@ -163,49 +163,49 @@ export async function createOrder(params: CreateOrderParams) {
     } as any)
     .select('order_token')
     .single() as any
-    
+
   if (error) {
     console.error('Failed to insert order:', error)
     throw new Error('Failed to create order')
   }
-  
+
   // Await notifications so Vercel doesn't terminate before they send
   if (params.paymentStatus !== 'PENDING') {
     await sendNotifications(data.order_token, params)
   }
-  
+
   return data.order_token
 }
 
 export async function getOrderByToken(token: string) {
   const supabase = await createClient()
-  
+
   const { data, error } = await supabase
     .from('orders')
     .select('*')
     .eq('order_token', token)
     .single() as any
-    
+
   if (error) {
     return null
   }
-  
+
   return data
 }
 
 export async function markOrderPaid(token: string, txRef: string) {
   const supabase = await createClient()
-  
+
   const { data, error } = await supabase
     .from('orders')
-    .update({ 
+    .update({
       payment_status: 'PAID',
       paystack_reference: txRef
     } as any)
     .eq('order_token', token)
     .select()
     .single() as any
-    
+
   if (error) {
     console.error('Failed to mark order paid:', error)
     throw new Error('Failed to mark order paid')
