@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useCartStore } from '@/store/useCartStore'
 import { useRouter } from 'next/navigation'
-import Script from 'next/script'
 import { ArrowLeft, CreditCard, Loader2, Trash2, Minus, Plus, ShieldCheck, Info, ChevronLeft, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -13,6 +12,7 @@ export default function CheckoutForm() {
   const { items, getSubtotal, clearCart, updateQuantity, removeItem } = useCartStore()
   const router = useRouter()
   const [mounted, setMounted] = useState(false)
+  const [fwLoaded, setFwLoaded] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
   const [formData, setFormData] = useState({ name: '', phone: '', email: '', address: '' })
   const [deliveryMethod, setDeliveryMethod] = useState<'delivery'|'pickup'>('delivery')
@@ -23,6 +23,21 @@ export default function CheckoutForm() {
     setMounted(true)
     if (items.length === 0 && !isSuccessRef.current) router.push('/menu')
   }, [items.length, router])
+
+  // Load Flutterwave SDK manually so we know exactly when it's ready
+  useEffect(() => {
+    if (document.getElementById('fw-script')) {
+      // @ts-ignore
+      if (window.FlutterwaveCheckout) setFwLoaded(true)
+      return
+    }
+    const script = document.createElement('script')
+    script.id = 'fw-script'
+    script.src = 'https://checkout.flutterwave.com/v3.js'
+    script.async = true
+    script.onload = () => setFwLoaded(true)
+    document.body.appendChild(script)
+  }, [])
 
   const subtotal = getSubtotal()
 
@@ -83,13 +98,11 @@ export default function CheckoutForm() {
         }
       }
 
-      // @ts-ignore
-      if (typeof window !== 'undefined' && window.FlutterwaveCheckout) {
-        // @ts-ignore
-        window.FlutterwaveCheckout(fwConfig)
-      } else {
-        throw new Error("Flutterwave SDK not loaded")
+      if (!fwLoaded) {
+        throw new Error('Payment system not ready. Please wait a moment and try again.')
       }
+      // @ts-ignore
+      window.FlutterwaveCheckout(fwConfig)
 
     } catch (err) {
       console.error("ORDER CREATION FAILED:", err)
@@ -102,7 +115,7 @@ export default function CheckoutForm() {
 
   return (
     <div className="min-h-screen bg-background py-8">
-      <Script src="https://checkout.flutterwave.com/v3.js" strategy="beforeInteractive" />
+      {/* Flutterwave SDK loaded via useEffect */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <Link href="/menu" className="inline-flex items-center gap-2 text-foreground/60 hover:text-accent mb-8 transition-colors font-medium group">
           <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
