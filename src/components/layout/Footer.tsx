@@ -63,6 +63,7 @@ export function Footer() {
             <h3 className="font-bold text-white text-lg">Quick Links</h3>
             <ul className="space-y-2 text-sm text-white/80">
               <li><Link href="/menu" className="hover:text-highlight transition-colors">Full Menu</Link></li>
+              <li><Link href="/track" className="hover:text-highlight transition-colors">Track Your Order</Link></li>
               <li><Link href="/policy" className="hover:text-highlight transition-colors">Our Policies</Link></li>
               <li><Link href="/about" className="hover:text-highlight transition-colors">About Us</Link></li>
             </ul>

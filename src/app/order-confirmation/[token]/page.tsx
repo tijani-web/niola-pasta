@@ -1,12 +1,13 @@
 import { getOrderByToken } from '@/lib/api/orders'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { CheckCircle2, ArrowRight, MessageCircle } from 'lucide-react'
+import { CheckCircle2, ArrowRight, MessageCircle, Package } from 'lucide-react'
+import CopyLinkButton from '@/components/order/CopyLinkButton'
 
 export const dynamic = 'force-dynamic'
 
 export const metadata = {
-  title: 'Order Confirmation | Niola\'s Pasta',
+  title: 'Order Confirmed | Niola\'s Pasta',
 }
 
 export default async function OrderConfirmationPage({ params }: { params: Promise<{ token: string }> }) {
@@ -17,10 +18,9 @@ export default async function OrderConfirmationPage({ params }: { params: Promis
     notFound()
   }
 
-  // Use the verified WhatsApp number
+  const isPickup = order.delivery_address === 'PICKUP'
   const whatsappNumber = '2347030462283'
   
-  // Format the items for the WhatsApp message
   const itemsText = order.items.map((item: any) => {
     let text = `${item.quantity}x ${item.name}`
     if (item.variant) text += ` (${item.variant})`
@@ -37,73 +37,122 @@ I just placed an order on the website.
 *Order ID:* ${order.order_token}
 *Name:* ${order.customer_name}
 *Phone:* ${order.customer_phone}
-*Delivery Address:* ${order.delivery_address}
+*${isPickup ? 'Order Type' : 'Delivery Address'}:* ${isPickup ? 'Pickup' : order.delivery_address}
 
 *Order Details:*
 ${itemsText}
 
 *Food Subtotal:* ₦${order.subtotal.toLocaleString()}
 
-Please confirm my order and let me know the estimated delivery time!`
+Please confirm my order and let me know the estimated ${isPickup ? 'pickup' : 'delivery'} time!`
 
   const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`
 
   return (
-    <div className="min-h-screen bg-background py-16 md:py-24">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        
+    <div className="min-h-screen bg-gradient-to-b from-green-50 to-background py-12 md:py-20">
+      <div className="max-w-2xl mx-auto px-4 sm:px-6">
+
+        {/* Success Icon */}
         <div className="flex justify-center mb-6">
-          <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center animate-bounce-short">
-            <CheckCircle2 className="w-10 h-10 text-green-600" />
+          <div className="relative">
+            <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center">
+              <CheckCircle2 className="w-12 h-12 text-green-600" />
+            </div>
+            <div className="absolute inset-0 w-24 h-24 bg-green-100 rounded-full animate-ping opacity-20" />
           </div>
         </div>
 
-        <h1 className="font-serif text-4xl md:text-5xl font-bold text-primary mb-4">
-          Order Received!
-        </h1>
-        <p className="text-foreground/70 text-lg mb-2">
-          Thank you for your order, <span className="font-semibold text-foreground">{order.customer_name}</span>.
-        </p>
-        <p className="text-foreground/60 mb-8 max-w-lg mx-auto">
-          We've received your payment and your order is now <span className="font-semibold text-primary">{order.order_status}</span>.
-        </p>
+        {/* Heading */}
+        <div className="text-center mb-8">
+          <h1 className="font-serif text-4xl md:text-5xl font-bold text-primary mb-3">
+            Order Confirmed! 🎉
+          </h1>
+          <p className="text-foreground/70 text-lg">
+            Thank you, <span className="font-semibold text-foreground">{order.customer_name}</span>!
+            Your payment was received successfully.
+          </p>
+        </div>
 
-        <div className="bg-white rounded-2xl border border-primary/10 shadow-sm overflow-hidden mb-8 text-left max-w-md mx-auto">
-          <div className="bg-primary/5 px-6 py-4 border-b border-primary/10 flex justify-between items-center">
-            <span className="font-bold text-primary">Order Token</span>
-            <span className="font-mono bg-white px-3 py-1 rounded-md text-sm border border-primary/10 shadow-sm">{order.order_token}</span>
+        {/* Order Summary Card */}
+        <div className="bg-white rounded-2xl border border-primary/10 shadow-sm overflow-hidden mb-5">
+          <div className="bg-primary/5 px-6 py-4 border-b border-primary/10 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Package className="w-5 h-5 text-primary" />
+              <span className="font-bold text-primary">Order Summary</span>
+            </div>
+            <span className="font-mono text-sm bg-white px-3 py-1 rounded-lg border border-primary/10 font-bold text-primary shadow-sm">
+              {order.order_token}
+            </span>
           </div>
+
           <div className="px-6 py-5 space-y-3 text-sm">
-            <div className="flex justify-between">
-              <span className="text-foreground/60">Subtotal</span>
-              <span className="font-bold">₦{order.subtotal.toLocaleString()}</span>
+            {/* Items */}
+            <div className="space-y-2 pb-3 border-b border-primary/10">
+              {order.items.map((item: any, idx: number) => {
+                const extrasTotal = item.extras?.reduce((s: number, e: any) => s + e.price, 0) || 0
+                const lineTotal = (item.price + extrasTotal) * item.quantity
+                return (
+                  <div key={idx} className="flex justify-between">
+                    <span className="text-foreground/70">
+                      {item.quantity}× {item.name}
+                      {item.variant && <span className="text-foreground/50 ml-1">({item.variant})</span>}
+                    </span>
+                    <span className="font-semibold">₦{lineTotal.toLocaleString()}</span>
+                  </div>
+                )
+              })}
             </div>
-            <div className="flex justify-between">
-              <span className="text-foreground/60">Delivery Fee</span>
-              <span className="italic">To be paid to rider</span>
+
+            <div className="flex justify-between text-foreground/60">
+              <span>Delivery Fee</span>
+              <span className="italic">{isPickup ? 'Pickup — no fee' : 'Paid to rider'}</span>
+            </div>
+            <div className="flex justify-between font-bold text-base text-primary pt-2 border-t border-primary/10">
+              <span>Total Paid</span>
+              <span>₦{order.subtotal.toLocaleString()}</span>
+            </div>
+
+            {/* Delivery/Pickup info */}
+            <div className={`mt-2 rounded-xl p-3 text-sm ${isPickup ? 'bg-blue-50 text-blue-800' : 'bg-amber-50 text-amber-800'}`}>
+              <span className="font-bold">{isPickup ? '📍 Pickup' : '🛵 Delivery'}: </span>
+              {isPickup
+                ? 'Uniosun second gate, opposite VIP Lodge, Osogbo'
+                : order.delivery_address}
             </div>
           </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+        {/* Copy Tracking Link */}
+        <div className="mb-5">
+          <CopyLinkButton token={order.order_token} />
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex flex-col sm:flex-row gap-3 mb-5">
           <a
             href={whatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[#25d366] hover:bg-[#1ebe5d] text-white font-bold py-3.5 px-8 rounded-xl transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5"
+            className="flex-1 flex items-center justify-center gap-2 bg-[#25d366] hover:bg-[#1ebe5d] text-white font-bold py-3.5 px-6 rounded-xl transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5"
           >
             <MessageCircle className="w-5 h-5" />
             Message Us on WhatsApp
           </a>
-          
+
           <Link
             href={`/track/${order.order_token}`}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary/10 hover:bg-primary/20 text-primary font-bold py-3.5 px-8 rounded-xl transition-all"
+            className="flex-1 flex items-center justify-center gap-2 bg-primary/10 hover:bg-primary/20 text-primary font-bold py-3.5 px-6 rounded-xl transition-all"
           >
             Track Order Status
             <ArrowRight className="w-5 h-5" />
           </Link>
         </div>
+
+        {/* Footer note */}
+        <p className="text-center text-foreground/40 text-xs">
+          Save your order token <span className="font-mono font-semibold">{order.order_token}</span> to track your order anytime at{' '}
+          <Link href="/track" className="text-accent hover:underline">niolaspasta.com/track</Link>
+        </p>
 
       </div>
     </div>
