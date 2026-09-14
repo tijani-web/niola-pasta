@@ -17,6 +17,9 @@ export async function POST(request: Request) {
     
     console.log('Signature matched! Parsing event...')
     const event = JSON.parse(text)
+    console.log('FULL FLUTTERWAVE EVENT:', JSON.stringify(event, null, 2))
+    console.log('event.event:', event.event)
+    console.log('event.data?.status:', event.data?.status)
     
     if (event.event === 'charge.completed' && event.data.status === 'successful') {
       const txRef = event.data.tx_ref // Our order_token was passed as tx_ref
