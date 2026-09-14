@@ -145,7 +145,7 @@ async function sendNotifications(token: string, params: CreateOrderParams) {
 }
 
 export async function createOrder(params: CreateOrderParams) {
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
 
   const { data, error } = await supabase
     .from('orders')
@@ -194,7 +194,7 @@ export async function getOrderByToken(token: string) {
 }
 
 export async function markOrderPaid(token: string, txRef: string) {
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
 
   const { data, error } = (await supabase
     .from('orders')
