@@ -178,7 +178,7 @@ export async function createOrder(params: CreateOrderParams) {
 }
 
 export async function getOrderByToken(token: string) {
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
 
   const { data, error } = await supabase
     .from('orders')
