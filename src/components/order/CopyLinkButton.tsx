@@ -1,12 +1,16 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Copy, Check, Link2 } from 'lucide-react'
 
 export default function CopyLinkButton({ token }: { token: string }) {
   const [copied, setCopied] = useState(false)
+  const [trackingUrl, setTrackingUrl] = useState(`https://niolaspasta.com/track/${token}`)
 
-  const trackingUrl = `${typeof window !== 'undefined' ? window.location.origin : 'https://niolaspasta.com'}/track/${token}`
+  // Prevent hydration mismatch by setting the precise origin on mount
+  useEffect(() => {
+    setTrackingUrl(`${window.location.origin}/track/${token}`)
+  }, [token])
 
   const handleCopy = async () => {
     try {
