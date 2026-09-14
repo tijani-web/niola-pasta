@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { CheckCircle2, ArrowRight, MessageCircle, Package } from 'lucide-react'
 import CopyLinkButton from '@/components/order/CopyLinkButton'
+import { ClearCartOnMount } from '@/components/checkout/ClearCartOnMount'
 
 export const dynamic = 'force-dynamic'
 
@@ -50,6 +51,7 @@ Please confirm my order and let me know the estimated ${isPickup ? 'pickup' : 'd
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-background py-12 md:py-20">
+      <ClearCartOnMount />
       <div className="max-w-2xl mx-auto px-4 sm:px-6">
 
         {/* Success Icon */}
