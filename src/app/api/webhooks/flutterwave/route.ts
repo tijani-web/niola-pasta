@@ -7,29 +7,29 @@ export async function POST(request: Request) {
     const signature = request.headers.get('verif-hash')
     const secretHash = process.env.FLUTTERWAVE_SECRET_HASH || ''
     
-    console.log(`Received Signature: ${signature}`)
-    
     // Validate signature
     if (!signature || signature !== secretHash) {
       console.error(`Signature mismatch! Expected: ${secretHash}, Got: ${signature}`)
       return NextResponse.json({ message: 'Invalid signature' }, { status: 400 })
     }
-    
-    console.log('Signature matched! Parsing event...')
+
     const event = JSON.parse(text)
-    console.log('FULL FLUTTERWAVE EVENT:', JSON.stringify(event, null, 2))
-    console.log('event.event:', event.event)
-    console.log('event.data?.status:', event.data?.status)
-    
-    if (event.event === 'charge.completed' && event.data.status === 'successful') {
-      const txRef = event.data.tx_ref // Our order_token was passed as tx_ref
-      const transactionId = event.data.id.toString()
-      
-      // Update order status based on successful payment
-      if (txRef) {
-        const { markOrderPaid } = await import('@/lib/api/orders')
-        await markOrderPaid(txRef, transactionId)
-      }
+
+    // Flutterwave sends a FLAT payload (no event.data nesting).
+    // Fields: event.status, event.txRef, event.id, event["event.type"]
+    const status = event.status        // "successful"
+    const txRef = event.txRef          // "NP-XXXX-XXXX"
+    const transactionId = String(event.id)
+
+    console.log(`Webhook status: ${status}, txRef: ${txRef}, transactionId: ${transactionId}`)
+
+    if (status === 'successful' && txRef) {
+      console.log(`Marking order ${txRef} as PAID...`)
+      const { markOrderPaid } = await import('@/lib/api/orders')
+      await markOrderPaid(txRef, transactionId)
+      console.log(`Order ${txRef} marked PAID successfully!`)
+    } else {
+      console.log(`Skipping — status was: ${status}`)
     }
     
     return NextResponse.json({ status: 'success' })
