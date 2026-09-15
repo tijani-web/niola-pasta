@@ -21,7 +21,7 @@ export async function POST(request: Request) {
     
     const status = dataObj.status
     const txRef = dataObj.tx_ref || dataObj.txRef
-    const transactionId = dataObj.id ? String(dataObj.id) : undefined
+    const transactionId = dataObj.id ? String(dataObj.id) : ''
 
     console.log(`Webhook status: ${status}, txRef: ${txRef}, transactionId: ${transactionId}`)
 
