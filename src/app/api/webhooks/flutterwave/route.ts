@@ -14,12 +14,14 @@ export async function POST(request: Request) {
     }
 
     const event = JSON.parse(text)
+    console.log('FULL FLUTTERWAVE EVENT:', JSON.stringify(event, null, 2))
 
-    // Flutterwave sends a FLAT payload (no event.data nesting).
-    // Fields: event.status, event.txRef, event.id, event["event.type"]
-    const status = event.status        // "successful"
-    const txRef = event.txRef          // "NP-XXXX-XXXX"
-    const transactionId = String(event.id)
+    // Handle both flat (test) and nested (live) payload structures
+    const dataObj = event.data || event
+    
+    const status = dataObj.status
+    const txRef = dataObj.tx_ref || dataObj.txRef
+    const transactionId = dataObj.id ? String(dataObj.id) : undefined
 
     console.log(`Webhook status: ${status}, txRef: ${txRef}, transactionId: ${transactionId}`)
 
