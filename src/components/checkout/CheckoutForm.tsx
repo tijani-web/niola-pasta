@@ -3,10 +3,43 @@
 import { useState, useEffect, useRef } from 'react'
 import { useCartStore } from '@/store/useCartStore'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, CreditCard, Loader2, Trash2, Minus, Plus, ShieldCheck, Info, ChevronLeft, ChevronRight } from 'lucide-react'
+import { ArrowLeft, CreditCard, Loader2, Trash2, Minus, Plus, ShieldCheck, Info, ChevronLeft, ChevronRight, MapPin } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { createOrder } from '@/lib/api/orders'
+
+const DELIVERY_ZONES = [
+  {
+    id: 'school-area-1',
+    name: 'SCHOOL AREA 1',
+    areas: 'Second Gate, Shogbo, Small Gate, Theology, Transformer, Jafariyah, Lick Sensation, Table Manners, Ogidan, Bethel, Shasha',
+    fee: 500,
+  },
+  {
+    id: 'school-area-2',
+    name: 'SCHOOL AREA 2',
+    areas: 'URP, Kasmo, Cele, Highfliers, Jagun Onilo, Akede, Okebaale',
+    fee: 700,
+  },
+  {
+    id: 'osogbo-1',
+    name: 'OSOGBO',
+    areas: 'Isale-Osun, Fountain University, Ilesha Garage, Ijetu, Ire Akari, Iludun, Testing ground',
+    fee: 1000,
+  },
+  {
+    id: 'osogbo-2',
+    name: 'OSOGBO',
+    areas: 'Kelebe, Ayetoro, Oke fia, Igbona, Stadium, Station road, Ogo-Oluwa, Sabo, Old Garage, Aregbe, Alekuwodo, Boredun, Lameco, Dada Estate, Halleluyah Estate, Agunbelewo',
+    fee: 1500,
+  },
+  {
+    id: 'osogbo-3',
+    name: 'OSOGBO',
+    areas: 'Owode, Jaleyemi, Abere, Power Line, Olaiya, GRA, Ring road',
+    fee: 2000,
+  },
+]
 
 export default function CheckoutForm() {
   const { items, getSubtotal, clearCart, updateQuantity, removeItem } = useCartStore()
@@ -15,9 +48,15 @@ export default function CheckoutForm() {
   const [fwLoaded, setFwLoaded] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
   const [formData, setFormData] = useState({ name: '', phone: '', email: '', address: '' })
-  const [deliveryMethod, setDeliveryMethod] = useState<'delivery'|'pickup'>('delivery')
+  const [deliveryMethod, setDeliveryMethod] = useState<'delivery' | 'pickup'>('delivery')
+  const [selectedZoneId, setSelectedZoneId] = useState<string>('')
   const [termsAccepted, setTermsAccepted] = useState(false)
   const isSuccessRef = useRef(false)
+
+  const selectedZone = DELIVERY_ZONES.find(z => z.id === selectedZoneId) || null
+  const foodSubtotal = getSubtotal()
+  const deliveryFee = deliveryMethod === 'delivery' && selectedZone ? selectedZone.fee : 0
+  const total = foodSubtotal + deliveryFee
 
   useEffect(() => {
     setMounted(true)
@@ -39,40 +78,45 @@ export default function CheckoutForm() {
     document.body.appendChild(script)
   }, [])
 
-  const subtotal = getSubtotal()
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!termsAccepted) return
+    if (deliveryMethod === 'delivery' && !selectedZoneId) {
+      alert('Please select your delivery zone.')
+      return
+    }
     setIsProcessing(true)
 
     try {
-      // 1. Generate Order Token
       const orderToken = `NP-${Math.floor(1000 + Math.random() * 9000)}-${Date.now().toString().slice(-4)}`
-      
-      console.log("Attempting to create pending order in database...")
-      // 2. Create the order in the database FIRST (Status: PENDING)
+
+      // Build delivery address including zone info
+      const deliveryAddress = deliveryMethod === 'pickup'
+        ? 'PICKUP'
+        : `${formData.address} — ${selectedZone?.name} (₦${deliveryFee.toLocaleString()} delivery)`
+
+      console.log('ATTEMPTING TO CREATE PENDING ORDER IN DATABASE...')
       await createOrder({
         orderToken,
         customerName: formData.name,
         customerPhone: formData.phone,
         customerEmail: formData.email,
-        deliveryAddress: deliveryMethod === 'pickup' ? 'PICKUP' : formData.address,
+        deliveryAddress,
         items,
-        subtotal,
-        paymentStatus: 'PENDING' // Explicitly set to pending
+        subtotal: total, // total includes delivery fee
+        paymentStatus: 'PENDING',
       })
-      console.log("Pending order created successfully:", orderToken)
-      
-      // 3. Launch Flutterwave Checkout with the created orderToken
+      console.log('PENDING ORDER CREATED SUCCESSFULLY:', orderToken)
+
       const fwConfig = {
         public_key: process.env.NEXT_PUBLIC_FLUTTERWAVE_PUBLIC_KEY || '',
         tx_ref: orderToken,
-        amount: subtotal,
+        amount: total, // Charge food + delivery fee
         currency: 'NGN',
         payment_options: 'card,banktransfer,ussd',
-        // Redirect completely to the order confirmation page. Webhook handles the rest!
-        redirect_url: typeof window !== 'undefined' ? `${window.location.origin}/order-confirmation/${orderToken}` : undefined,
+        redirect_url: typeof window !== 'undefined'
+          ? `${window.location.origin}/order-confirmation/${orderToken}`
+          : undefined,
         customer: {
           email: formData.email || 'guest@niolaspasta.com',
           phone_number: formData.phone,
@@ -84,18 +128,17 @@ export default function CheckoutForm() {
           logo: 'https://niolaspasta.com/icon.png',
         },
         callback: function (data: any) {
-          // In case it doesn't hard-redirect (fallback)
           if (data.status === 'successful') {
             isSuccessRef.current = true
             clearCart()
             window.location.href = `/order-confirmation/${orderToken}`
           }
         },
-        onclose: function() {
+        onclose: function () {
           if (!isSuccessRef.current) {
             setIsProcessing(false)
           }
-        }
+        },
       }
 
       if (!fwLoaded) {
@@ -103,9 +146,8 @@ export default function CheckoutForm() {
       }
       // @ts-ignore
       window.FlutterwaveCheckout(fwConfig)
-
     } catch (err) {
-      console.error("ORDER CREATION FAILED:", err)
+      console.error('ORDER CREATION FAILED:', err)
       alert('Failed to initialize checkout. Please check your connection and try again.')
       setIsProcessing(false)
     }
@@ -115,7 +157,6 @@ export default function CheckoutForm() {
 
   return (
     <div className="min-h-screen bg-background py-8">
-      {/* Flutterwave SDK loaded via useEffect */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <Link href="/menu" className="inline-flex items-center gap-2 text-foreground/60 hover:text-accent mb-8 transition-colors font-medium group">
           <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
@@ -132,7 +173,7 @@ export default function CheckoutForm() {
                 <h2 className="font-serif font-bold text-xl text-primary">Billing Details</h2>
               </div>
               <div className="p-6 space-y-5">
-                
+
                 {/* Delivery or Pickup Toggle */}
                 <div className="grid grid-cols-2 gap-2 p-1.5 bg-primary/5 rounded-xl mb-6">
                   <button
@@ -184,16 +225,55 @@ export default function CheckoutForm() {
                     />
                   </div>
                 </div>
-                
+
                 {deliveryMethod === 'delivery' ? (
-                  <div>
-                    <label className="block text-sm font-bold text-foreground mb-1.5">Delivery Address *</label>
-                    <textarea
-                      required rows={3} value={formData.address}
-                      onChange={e => setFormData(p => ({ ...p, address: e.target.value }))}
-                      placeholder="House number, street, nearest landmark, area, Osogbo"
-                      className="w-full p-3.5 rounded-xl border border-primary/20 focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none transition-all resize-none"
-                    />
+                  <div className="space-y-4">
+                    {/* Delivery Zone Selector */}
+                    <div>
+                      <label className="block text-sm font-bold text-foreground mb-2">
+                        <MapPin className="inline w-4 h-4 mr-1 text-accent" />
+                        Select Your Delivery Zone *
+                      </label>
+                      <div className="space-y-2">
+                        {DELIVERY_ZONES.map(zone => (
+                          <label
+                            key={zone.id}
+                            className={`flex items-start gap-3 p-3.5 rounded-xl border-2 cursor-pointer transition-all ${
+                              selectedZoneId === zone.id
+                                ? 'border-accent bg-accent/5'
+                                : 'border-primary/15 hover:border-primary/30 bg-white'
+                            }`}
+                          >
+                            <input
+                              type="radio"
+                              name="delivery-zone"
+                              value={zone.id}
+                              checked={selectedZoneId === zone.id}
+                              onChange={() => setSelectedZoneId(zone.id)}
+                              className="mt-0.5 accent-accent flex-shrink-0"
+                            />
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between gap-2">
+                                <span className="font-bold text-sm text-primary">{zone.name}</span>
+                                <span className="font-black text-accent text-sm flex-shrink-0">₦{zone.fee.toLocaleString()}</span>
+                              </div>
+                              <p className="text-xs text-foreground/55 mt-0.5 leading-relaxed">{zone.areas}</p>
+                            </div>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Specific Address */}
+                    <div>
+                      <label className="block text-sm font-bold text-foreground mb-1.5">Delivery Address *</label>
+                      <textarea
+                        required rows={2} value={formData.address}
+                        onChange={e => setFormData(p => ({ ...p, address: e.target.value }))}
+                        placeholder="House number, street, nearest landmark..."
+                        className="w-full p-3.5 rounded-xl border border-primary/20 focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none transition-all resize-none"
+                      />
+                    </div>
                   </div>
                 ) : (
                   <div className="bg-primary/5 p-5 rounded-xl border border-primary/10 flex flex-col gap-2">
@@ -272,36 +352,34 @@ export default function CheckoutForm() {
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="font-serif font-bold text-sm text-primary uppercase tracking-wider">Add Extras</h3>
                   <div className="flex items-center gap-1">
-                    <button 
+                    <button
                       type="button"
                       onClick={() => {
                         const el = document.getElementById('checkout-extras')
                         if (el) el.scrollBy({ left: -150, behavior: 'smooth' })
-                      }} 
+                      }}
                       className="p-1 rounded-full hover:bg-white text-gray-500 transition-colors"
                     >
                       <ChevronLeft className="w-4 h-4" />
                     </button>
-                    <button 
+                    <button
                       type="button"
                       onClick={() => {
                         const el = document.getElementById('checkout-extras')
                         if (el) el.scrollBy({ left: 150, behavior: 'smooth' })
-                      }} 
+                      }}
                       className="p-1 rounded-full hover:bg-white text-gray-500 transition-colors"
                     >
                       <ChevronRight className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
-                <div 
+                <div
                   id="checkout-extras"
-                  className="flex overflow-x-auto gap-3 pb-2 snap-x" 
+                  className="flex overflow-x-auto gap-3 pb-2 snap-x"
                   style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                 >
-                  <style dangerouslySetInnerHTML={{__html: `
-                    #checkout-extras::-webkit-scrollbar { display: none; }
-                  `}} />
+                  <style dangerouslySetInnerHTML={{ __html: `#checkout-extras::-webkit-scrollbar { display: none; }` }} />
                   {[
                     { id: 'extra-pasta', name: 'Extra Pasta', price: 300 },
                     { id: 'extra-chicken', name: 'Extra Chicken', price: 1300 },
@@ -310,7 +388,7 @@ export default function CheckoutForm() {
                     { id: 'extra-egg', name: 'Extra Egg', price: 500 },
                     { id: 'extra-veggies', name: 'Extra Veggies', price: 0 },
                   ].map((extra) => (
-                    <div 
+                    <div
                       key={extra.id}
                       className="min-w-[140px] p-3 rounded-xl border border-primary/10 bg-white hover:border-primary/30 shadow-sm snap-start transition-all"
                     >
@@ -340,20 +418,24 @@ export default function CheckoutForm() {
               <div className="px-6 py-4 border-t border-primary/10 space-y-2">
                 <div className="flex justify-between text-sm text-foreground/70">
                   <span>Food Subtotal</span>
-                  <span>₦{subtotal.toLocaleString()}</span>
+                  <span>₦{foodSubtotal.toLocaleString()}</span>
                 </div>
-                <div className="flex justify-between text-sm text-foreground/50">
+                <div className="flex justify-between text-sm text-foreground/70">
                   <span className="flex items-center gap-1">
-                    <Info className="w-3.5 h-3.5" />
+                    <MapPin className="w-3.5 h-3.5 text-accent" />
                     Delivery Fee
                   </span>
-                  <span className="italic font-medium text-primary">
-                    {deliveryMethod === 'pickup' ? 'Free (Pickup)' : 'Paid to rider'}
+                  <span className={`font-semibold ${deliveryFee > 0 ? 'text-accent' : 'text-foreground/50 italic'}`}>
+                    {deliveryMethod === 'pickup'
+                      ? 'Free (Pickup)'
+                      : selectedZone
+                        ? `₦${deliveryFee.toLocaleString()}`
+                        : 'Select zone above'}
                   </span>
                 </div>
                 <div className="flex justify-between font-bold text-lg text-primary pt-2 border-t border-primary/10">
                   <span>Total</span>
-                  <span>₦{subtotal.toLocaleString()}</span>
+                  <span>₦{total.toLocaleString()}</span>
                 </div>
               </div>
 
@@ -368,16 +450,14 @@ export default function CheckoutForm() {
                   </div>
                 </div>
 
-                <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 flex gap-2">
-                  <Info className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
-                  <p className="text-xs text-amber-700 leading-relaxed">
-                    {deliveryMethod === 'pickup' ? (
-                      <><strong>Pickup selected.</strong> Please pick up your food at Uniosun second gate opposite VIP LODGE.</>
-                    ) : (
-                      <><strong>Delivery fee not included.</strong> Pay for food here; delivery fee is paid directly to the rider on arrival.</>
-                    )}
-                  </p>
-                </div>
+                {deliveryMethod === 'pickup' && (
+                  <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 flex gap-2">
+                    <Info className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
+                    <p className="text-xs text-amber-700 leading-relaxed">
+                      <strong>Pickup selected.</strong> Please pick up your food at Uniosun second gate opposite VIP LODGE.
+                    </p>
+                  </div>
+                )}
 
                 {/* Terms and conditions */}
                 <label className="flex items-start gap-3 p-1 cursor-pointer group">
@@ -389,20 +469,20 @@ export default function CheckoutForm() {
                     className="mt-0.5 w-5 h-5 rounded border-gray-300 text-accent focus:ring-accent accent-accent transition-all cursor-pointer"
                   />
                   <span className="text-sm text-foreground/80 leading-snug select-none group-hover:text-foreground">
-                    I understand & agree to the <a href="#" target="_blank" className="text-accent hover:underline font-medium">Terms and Conditions</a>.
+                    I understand &amp; agree to the <a href="/policy" target="_blank" className="text-accent hover:underline font-medium">Terms and Conditions</a>.
                   </span>
                 </label>
 
                 <button
                   type="submit"
                   form="checkout-form"
-                  disabled={isProcessing || !termsAccepted}
+                  disabled={isProcessing || !termsAccepted || (deliveryMethod === 'delivery' && !selectedZoneId)}
                   className="w-full bg-primary hover:bg-accent disabled:bg-primary/50 text-white font-bold py-4 px-6 rounded-xl flex items-center justify-center gap-2 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-[1.02] disabled:hover:scale-100 disabled:shadow-none"
                 >
                   {isProcessing ? (
-                    <><Loader2 className="w-5 h-5 animate-spin" /> Processing...</>
+                    <><Loader2 className="w-5 h-5 animate-spin" />Processing...</>
                   ) : (
-                    <><CreditCard className="w-5 h-5" /> Place Order — ₦{subtotal.toLocaleString()}</>
+                    <><CreditCard className="w-5 h-5" />Place Order — ₦{total.toLocaleString()}</>
                   )}
                 </button>
 
