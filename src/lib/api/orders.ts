@@ -140,25 +140,19 @@ async function sendNotifications(token: string, params: CreateOrderParams) {
       console.log('Termii SMS result:', JSON.stringify(termiiData))
     }
 
-    // Send WhatsApp notification to owner via Termii WhatsApp channel
-    if (process.env.TERMII_API_KEY) {
+    // Send WhatsApp notification to owner via CallMeBot (free, no approval needed)
+    // Setup: Save +34 644 34 65 90 in WhatsApp contacts as "CallMeBot"
+    //        Send: "I allow callmebot to send me messages" to get your API key
+    //        Then add CALLMEBOT_API_KEY to your Vercel environment variables
+    if (process.env.CALLMEBOT_API_KEY) {
       const deliveryLabel = isPickup ? '📦 PICKUP ORDER' : `🚚 DELIVERY to: ${params.deliveryAddress}`
-      const waMessage = `🍝 *NEW ORDER — ${token}*\n\n👤 *Customer:* ${params.customerName}\n📞 *Phone:* ${params.customerPhone}\n${deliveryLabel}\n\n*Items:*\n${itemsSmsText}\n\n💰 *Total Paid: ₦${params.subtotal.toLocaleString()}*\n\nView dashboard: https://niolaspasta.com/admin/dashboard`
-      const waRes = await fetch('https://api.ng.termii.com/api/sms/send', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          to: '2347030462283',
-          from: 'N-Alert',
-          sms: waMessage,
-          type: 'plain',
-          api_key: process.env.TERMII_API_KEY,
-          channel: 'whatsapp'
-        }),
-        signal: AbortSignal.timeout(10000),
-      })
-      const waData = await waRes.json()
-      console.log('Termii WhatsApp result:', JSON.stringify(waData))
+      const waMessage = `🍝 *NEW ORDER — ${token}*\n\n👤 *Customer:* ${params.customerName}\n📞 *Phone:* ${params.customerPhone}\n${deliveryLabel}\n\n*Items:*\n${itemsSmsText}\n\n💰 *Total Paid: ₦${params.subtotal.toLocaleString()}*\n\nDashboard: https://niolaspasta.com/admin/dashboard`
+      const encodedMsg = encodeURIComponent(waMessage)
+      // Owner's WhatsApp number in international format (no + sign)
+      const ownerPhone = '2347030462283'
+      const waUrl = `https://api.callmebot.com/whatsapp.php?phone=${ownerPhone}&text=${encodedMsg}&apikey=${process.env.CALLMEBOT_API_KEY}`
+      const waRes = await fetch(waUrl, { signal: AbortSignal.timeout(15000) })
+      console.log('CallMeBot WhatsApp status:', waRes.status)
     }
   } catch (err) {
     console.error('Failed to send notifications:', err)
