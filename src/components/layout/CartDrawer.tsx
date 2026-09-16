@@ -164,12 +164,8 @@ export function CartDrawer() {
                     <span>Subtotal</span>
                     <span>₦{subtotal.toLocaleString()}</span>
                   </div>
-                  <div className="flex justify-between text-sm text-accent">
-                    <span>Delivery Fee</span>
-                    <span>Paid to rider on delivery</span>
-                  </div>
                   <div className="flex justify-between font-bold text-lg pt-3 border-t border-primary/10 text-primary">
-                    <span>Total (Food Only)</span>
+                    <span>Total</span>
                     <span>₦{subtotal.toLocaleString()}</span>
                   </div>
                 </div>

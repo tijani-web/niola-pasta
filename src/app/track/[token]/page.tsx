@@ -33,7 +33,7 @@ export default async function TrackOrderPage({ params }: { params: Promise<{ tok
     : [
         { id: 'Pending Confirmation', label: 'Order Placed', sub: 'Awaiting shop confirmation', icon: Clock },
         { id: 'Preparing', label: 'Preparing', sub: 'Your food is being made', icon: ChefHat },
-        { id: 'Out for Delivery', label: 'Out for Delivery', sub: 'Rider is on the way!', icon: Truck },
+        { id: 'Out for Delivery', label: 'Out for Delivery', sub: 'Your order is on the way!', icon: Truck },
         { id: 'Delivered', label: 'Delivered', sub: 'Enjoy your meal!', icon: Home },
       ]
 

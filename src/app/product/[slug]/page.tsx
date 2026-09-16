@@ -196,7 +196,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
             <div className="mt-6 flex items-start gap-3 bg-accent/5 border border-accent/15 rounded-2xl p-4">
               <span className="text-xl">🚚</span>
               <p className="text-sm text-foreground/70 leading-relaxed">
-                <strong className="text-foreground">Delivery fee not included.</strong> You pay for food online; delivery fee is paid directly to the rider on arrival.
+                <strong className="text-foreground">Delivery available across Osogbo.</strong> The delivery fee is calculated at checkout based on your selected location zone.
               </p>
             </div>
           </div>

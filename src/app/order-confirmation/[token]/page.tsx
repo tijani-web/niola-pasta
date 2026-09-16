@@ -106,8 +106,8 @@ Please confirm my order and let me know the estimated ${isPickup ? 'pickup' : 'd
             </div>
 
             <div className="flex justify-between text-foreground/60">
-              <span>Delivery Fee</span>
-              <span className="italic">{isPickup ? 'Pickup — no fee' : 'Paid to rider'}</span>
+              <span>Delivery</span>
+              <span className="italic">{isPickup ? 'Pickup — no fee' : 'Included in total'}</span>
             </div>
             <div className="flex justify-between font-bold text-base text-primary pt-2 border-t border-primary/10">
               <span>Total Paid</span>

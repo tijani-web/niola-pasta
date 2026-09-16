@@ -18,7 +18,7 @@ export default function PolicyPage() {
 
           <section className="mb-10">
             <h3>2. Payment Policy</h3>
-            <p>All food payments must be made securely online. <strong>The delivery fee is NOT included in your online payment.</strong> You are required to pay the delivery fee directly to the dispatch rider in cash or transfer upon arrival.</p>
+            <p>All payments must be made securely online. <strong>The delivery fee is included in your online payment</strong> at checkout based on your selected zone. Dispatch riders are already paid for their service and will not request payment from you.</p>
           </section>
 
           <section className="mb-10">
@@ -28,7 +28,7 @@ export default function PolicyPage() {
 
           <section className="mb-10">
             <h3>4. Delivery Waiting Policy</h3>
-            <p>Dispatch riders will wait a maximum of <strong>10 minutes</strong> at your location. If you are unreachable or unavailable within this timeframe, the rider will leave, and you will be responsible for paying another delivery fee for a second attempt.</p>
+            <p>Dispatch riders will wait a maximum of <strong>10 minutes</strong> at your location. If you are unreachable or unavailable within this timeframe, the rider will leave, and you will be responsible for paying another delivery fee online for a second attempt.</p>
           </section>
 
           <section className="mb-10">

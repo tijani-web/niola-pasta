@@ -55,7 +55,7 @@ export function PolicyModal() {
             <div className="p-6 overflow-y-auto flex-1 space-y-4">
               <div className="space-y-2">
                 <h3 className="font-semibold text-foreground">Delivery Fees</h3>
-                <p className="text-sm text-foreground/80">Delivery is <strong>not included</strong> in the online checkout total. You will pay the dispatch rider directly upon delivery.</p>
+                <p className="text-sm text-foreground/80">Delivery is <strong>included</strong> in the online checkout total based on your selected zone. Dispatch riders will not request payment from you upon delivery.</p>
               </div>
 
               <div className="space-y-2">

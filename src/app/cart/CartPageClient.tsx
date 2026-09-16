@@ -184,19 +184,15 @@ export default function CartPageClient() {
                   <span>Food Subtotal</span>
                   <span>₦{subtotal.toLocaleString()}</span>
                 </div>
-                <div className="flex justify-between text-foreground/50">
-                  <span>Delivery Fee</span>
-                  <span className="italic">Paid to rider</span>
-                </div>
               </div>
 
               <div className="flex justify-between font-bold text-lg text-primary pt-3 border-t border-primary/10">
-                <span>Total</span>
+                <span>Food Total</span>
                 <span>₦{subtotal.toLocaleString()}</span>
               </div>
 
-              <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-700 leading-relaxed">
-                Delivery fee is <strong>not included</strong> — you pay the rider directly on arrival.
+              <div className="bg-primary/5 border border-primary/10 rounded-xl p-3 text-xs text-foreground/60 leading-relaxed">
+                Delivery fee is selected at checkout based on your location zone.
               </div>
 
               <Link

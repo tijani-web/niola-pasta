@@ -85,7 +85,7 @@ export function Footer() {
 
         <div className="border-t border-white/10 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-white/60">
           <p>&copy; {new Date().getFullYear()} Niola&apos;s Pasta. All rights reserved.</p>
-          <p>Delivery fee is paid directly to the dispatch rider.</p>
+          <p>Delivery fee is calculated at checkout based on your location.</p>
         </div>
       </div>
     </footer>
