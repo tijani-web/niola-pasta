@@ -12,11 +12,11 @@ const GALLERY = [
   },
   {
     src: '/niolas-img/HeroSectionImage/hero1.jpeg',
-    label: 'Stir-fried Chicken & Plantain Pasta'
+    label: 'Niola\s Gizdodo'
   },
   {
     src: '/niolas-img/HeroSectionImage/hero2.jpeg',
-    label: 'Peppered Chicken Special Delivery'
+    label: 'Chicken Pasta'
   },
   {
     src: '/niolas-img/HeroSectionImage/hero4.jpeg',
