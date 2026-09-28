@@ -54,24 +54,29 @@ Please confirm my order and let me know the estimated ${isPickup ? 'pickup' : 'd
       <ClearCartOnMount />
       <div className="max-w-2xl mx-auto px-4 sm:px-6">
 
-        {/* Success Icon */}
+        {/* Status Icon */}
         <div className="flex justify-center mb-6">
           <div className="relative">
-            <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center">
-              <CheckCircle2 className="w-12 h-12 text-green-600" />
+            <div className={`w-24 h-24 rounded-full flex items-center justify-center ${order.payment_status === 'PAID' ? 'bg-green-100' : 'bg-amber-100'}`}>
+              {order.payment_status === 'PAID' 
+                ? <CheckCircle2 className="w-12 h-12 text-green-600" />
+                : <Package className="w-12 h-12 text-amber-600" />
+              }
             </div>
-            <div className="absolute inset-0 w-24 h-24 bg-green-100 rounded-full animate-ping opacity-20" />
+            <div className={`absolute inset-0 w-24 h-24 rounded-full animate-ping opacity-20 ${order.payment_status === 'PAID' ? 'bg-green-100' : 'bg-amber-100'}`} />
           </div>
         </div>
 
         {/* Heading */}
         <div className="text-center mb-8">
-          <h1 className="font-serif text-4xl md:text-5xl font-bold text-primary mb-3">
-            Order Confirmed! 🎉
+          <h1 className={`font-serif text-4xl md:text-5xl font-bold mb-3 ${order.payment_status === 'PAID' ? 'text-primary' : 'text-amber-600'}`}>
+            {order.payment_status === 'PAID' ? 'Order Confirmed! 🎉' : 'Payment Pending ⏳'}
           </h1>
           <p className="text-foreground/70 text-lg">
             Thank you, <span className="font-semibold text-foreground">{order.customer_name}</span>!
-            Your payment was received successfully.
+            {order.payment_status === 'PAID' 
+              ? ' Your payment was received successfully.' 
+              : ' Your order has been placed but payment is still pending. We will process it as soon as the payment is confirmed.'}
           </p>
         </div>
 
