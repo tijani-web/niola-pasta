@@ -131,7 +131,7 @@ export default function CheckoutForm() {
           if (data.status === 'successful') {
             isSuccessRef.current = true
             clearCart()
-            window.location.href = `/order-confirmation/${orderToken}`
+            router.push(`/order-confirmation/${orderToken}`)
           }
         },
         onclose: function () {
