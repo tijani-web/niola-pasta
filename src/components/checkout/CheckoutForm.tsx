@@ -323,9 +323,13 @@ export default function CheckoutForm() {
                       )}
                       <div className="flex-1 min-w-0">
                         <p className="font-semibold text-sm text-foreground truncate">{item.name}</p>
-                        {item.variant && <p className="text-xs text-foreground/50">{item.variant}</p>}
+                        {item.variant && (
+                          <span className="inline-block bg-accent/10 text-accent font-semibold text-[11px] px-2 py-0.5 rounded-md mt-0.5">
+                            {item.variant}
+                          </span>
+                        )}
                         {item.extras && item.extras.length > 0 && (
-                          <p className="text-xs text-foreground/50 truncate">+ {item.extras.map(e => e.name).join(', ')}</p>
+                          <p className="text-xs text-foreground/50 truncate mt-0.5">+ {item.extras.map(e => e.name).join(', ')}</p>
                         )}
                         {/* Quantity controls */}
                         <div className="flex items-center gap-2 mt-1">
@@ -381,8 +385,9 @@ export default function CheckoutForm() {
                 >
                   <style dangerouslySetInnerHTML={{ __html: `#checkout-extras::-webkit-scrollbar { display: none; }` }} />
                   {[
+                    { id: 'extra-peppered-chicken', name: 'Extra Peppered Chicken', price: 1300 },
+                    { id: 'extra-crunchy-chicken', name: 'Extra Crunchy Chicken', price: 1500 },
                     { id: 'extra-pasta', name: 'Extra Pasta', price: 300 },
-                    { id: 'extra-chicken', name: 'Extra Chicken', price: 1300 },
                     { id: 'extra-plantain', name: 'Extra Plantain', price: 500 },
                     { id: 'extra-sausage', name: 'Extra Sausage', price: 500 },
                     { id: 'extra-egg', name: 'Extra Egg', price: 500 },

@@ -8,7 +8,7 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 
 export function CartDrawer() {
-  const { isOpen, setIsOpen, items, removeItem, updateQuantity, getSubtotal } = useCartStore()
+  const { isOpen, setIsOpen, items, removeItem, updateQuantity, getSubtotal, addItem } = useCartStore()
   const [mounted, setMounted] = useState(false)
   const router = useRouter()
 
@@ -119,10 +119,19 @@ export function CartDrawer() {
                           </div>
                           
                           {/* Variant & Extras */}
-                          <div className="text-sm text-foreground/70 mt-1 space-y-0.5">
-                            {item.variant && <p>Choice: <span className="font-medium text-foreground">{item.variant}</span></p>}
+                          <div className="text-sm text-foreground/70 mt-1 space-y-1">
+                            {item.variant && (
+                              <div className="flex items-center gap-1.5 flex-wrap">
+                                <span className="text-xs text-foreground/50">Choice:</span>
+                                <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-accent/10 text-accent">
+                                  {item.variant}
+                                </span>
+                              </div>
+                            )}
                             {item.extras && item.extras.length > 0 && (
-                              <p>Extras: {item.extras.map(e => e.name).join(', ')}</p>
+                              <p className="text-xs text-foreground/60 leading-snug">
+                                <span className="font-medium text-foreground">Extras:</span> {item.extras.map(e => `${e.name}${e.price > 0 ? ` (₦${e.price.toLocaleString()})` : ''}`).join(', ')}
+                              </p>
                             )}
                           </div>
                         </div>
@@ -153,6 +162,56 @@ export function CartDrawer() {
                     </li>
                   ))}
                 </ul>
+              )}
+
+              {/* Quick Add Extras in Cart Drawer */}
+              {items.length > 0 && (
+                <div className="mt-6 pt-4 border-t border-primary/10">
+                  <span className="text-xs font-bold text-primary uppercase tracking-wider block mb-2.5">
+                    Add Extras
+                  </span>
+                  <div 
+                    className="flex overflow-x-auto gap-2.5 pb-2 snap-x"
+                    style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                  >
+                    {[
+                      { id: 'extra-peppered-chicken', name: 'Extra Peppered Chicken', price: 1300 },
+                      { id: 'extra-crunchy-chicken', name: 'Extra Crunchy Chicken', price: 1500 },
+                      { id: 'extra-plantain', name: 'Extra Plantain', price: 500 },
+                      { id: 'extra-sausage', name: 'Extra Sausage', price: 500 },
+                      { id: 'extra-egg', name: 'Extra Egg', price: 500 },
+                    ].map((extra) => (
+                      <div
+                        key={extra.id}
+                        className="min-w-[135px] p-2.5 rounded-xl border border-primary/10 bg-primary/5 flex flex-col justify-between snap-start"
+                      >
+                        <div>
+                          <p className="font-semibold text-xs text-foreground leading-tight truncate">
+                            {extra.name}
+                          </p>
+                          <p className="text-[11px] font-bold text-accent mt-0.5">
+                            ₦{extra.price.toLocaleString()}
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            addItem({
+                              menuItemId: extra.id,
+                              name: extra.name,
+                              price: extra.price,
+                              quantity: 1,
+                              imageUrl: null
+                            })
+                          }}
+                          className="mt-2 w-full py-1 rounded-lg text-[11px] font-bold bg-primary text-white hover:bg-accent transition-colors"
+                        >
+                          + Add
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               )}
             </div>
 

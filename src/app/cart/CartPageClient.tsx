@@ -36,8 +36,9 @@ export default function CartPageClient() {
   }
 
   const EXTRAS = [
+    { id: 'extra-peppered-chicken', name: 'Extra Peppered Chicken', price: 1300 },
+    { id: 'extra-crunchy-chicken', name: 'Extra Crunchy Chicken', price: 1500 },
     { id: 'extra-pasta', name: 'Extra Pasta', price: 300 },
-    { id: 'extra-chicken', name: 'Extra Chicken', price: 1300 },
     { id: 'extra-plantain', name: 'Extra Plantain', price: 500 },
     { id: 'extra-sausage', name: 'Extra Sausage', price: 500 },
     { id: 'extra-egg', name: 'Extra Egg', price: 500 },
@@ -73,10 +74,16 @@ export default function CartPageClient() {
 
                   <div className="flex-1 min-w-0">
                     <h3 className="font-bold text-foreground">{item.name}</h3>
-                    {item.variant && <p className="text-sm text-foreground/60 mt-0.5">{item.variant}</p>}
+                    {item.variant && (
+                      <div className="mt-1">
+                        <span className="inline-block text-xs font-semibold px-2.5 py-0.5 rounded-md bg-accent/10 text-accent">
+                          {item.variant}
+                        </span>
+                      </div>
+                    )}
                     {item.extras && item.extras.length > 0 && (
-                      <p className="text-xs text-foreground/50 mt-0.5">
-                        + {item.extras.map(e => `${e.name}${e.price > 0 ? ` (₦${e.price})` : ''}`).join(', ')}
+                      <p className="text-xs text-foreground/50 mt-1">
+                        + {item.extras.map(e => `${e.name}${e.price > 0 ? ` (₦${e.price.toLocaleString()})` : ''}`).join(', ')}
                       </p>
                     )}
                     <div className="flex items-center gap-3 mt-3">

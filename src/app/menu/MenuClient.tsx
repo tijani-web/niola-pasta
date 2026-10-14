@@ -82,6 +82,15 @@ export function MenuClient({ items, categories }: MenuClientProps) {
                       price={item.price}
                       imageUrl={item.image_url || null}
                       isSoldOut={item.is_sold_out}
+                      hasVariants={
+                        Boolean((item as any).variants) ||
+                        item.name.toLowerCase().includes('chicken') ||
+                        (!item.name.toLowerCase().includes('turkey') &&
+                         !item.name.toLowerCase().includes('gizzy') &&
+                         !item.name.toLowerCase().includes('sardine') &&
+                         !item.name.toLowerCase().includes('egg') &&
+                         (item.category === 'Big Plate' || item.category === 'Small Plate' || item.category === 'Budget Plate'))
+                      }
                     />
                   ))}
                 </div>

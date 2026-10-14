@@ -87,7 +87,13 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
                     <div key={idx} className="flex justify-between items-start pb-4 border-b border-gray-50 last:border-0 last:pb-0">
                       <div>
                         <p className="font-semibold text-gray-900">{item.quantity}× {item.name}</p>
-                        {item.variant && <p className="text-sm text-gray-500">Variant: {item.variant}</p>}
+                        {item.variant && (
+                          <div className="mt-0.5">
+                            <span className="inline-block bg-accent/10 text-accent font-semibold text-xs px-2 py-0.5 rounded-md">
+                              Choice: {item.variant}
+                            </span>
+                          </div>
+                        )}
                         {item.extras && item.extras.length > 0 && (
                           <p className="text-xs text-gray-400 mt-1">
                             + {item.extras.map((e: any) => e.name).join(', ')}

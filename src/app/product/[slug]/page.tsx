@@ -73,8 +73,40 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   // Related products — same category, exclude current
   const related = items.filter(i => i.category === product.category && i.slug !== slug).slice(0, 4)
 
-  const extras = Array.isArray(product.extras) ? product.extras :
+  const rawExtras = Array.isArray(product.extras) ? product.extras :
     (typeof product.extras === 'string' ? JSON.parse(product.extras) : null)
+
+  const isChickenDish =
+    product.name.toLowerCase().includes('chicken') ||
+    (Boolean(product.description) && product.description!.toLowerCase().includes('chicken')) ||
+    (!product.name.toLowerCase().includes('turkey') &&
+     !product.name.toLowerCase().includes('gizzy') &&
+     !product.name.toLowerCase().includes('sardine') &&
+     !product.name.toLowerCase().includes('egg') &&
+     (product.category === 'Big Plate' || product.category === 'Small Plate' || product.category === 'Budget Plate'))
+
+  // Normalize extras: ensure Extra Peppered Chicken and Extra Crunchy Chicken are available
+  let extras: { name: string; price: number }[] = []
+  if (Array.isArray(rawExtras) && rawExtras.length > 0) {
+    extras = rawExtras.flatMap((e: any) => {
+      const item = typeof e === 'string' ? { name: e, price: 0 } : e
+      if (item.name?.toLowerCase() === 'extra chicken' || item.name?.toLowerCase() === 'chicken') {
+        return [
+          { name: 'Extra Peppered Chicken', price: 1300 },
+          { name: 'Extra Crunchy Chicken', price: 1500 },
+        ]
+      }
+      return [item]
+    })
+  } else if (isChickenDish) {
+    extras = [
+      { name: 'Extra Peppered Chicken', price: 1300 },
+      { name: 'Extra Crunchy Chicken', price: 1500 },
+      { name: 'Extra Plantain', price: 500 },
+      { name: 'Extra Sausage', price: 500 },
+      { name: 'Extra Boiled Egg', price: 500 },
+    ]
+  }
 
   // JSON-LD Structured Data for Product
   const jsonLd = {
@@ -171,7 +203,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
                   {extras.map((e: any) => (
                     <span key={e.name} className="inline-flex items-center gap-1 text-xs bg-white border border-primary/10 text-foreground/70 px-3 py-1.5 rounded-full">
                       <Check className="w-3 h-3 text-accent" />
-                      {e.name} {e.price > 0 ? `(+₦${e.price})` : '(Free)'}
+                      {e.name} {e.price > 0 ? `(+₦${e.price.toLocaleString()})` : '(Free)'}
                     </span>
                   ))}
                 </div>
@@ -187,7 +219,9 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
                   imageUrl: product.image_url,
                   isSoldOut: product.is_sold_out,
                   variants: product.variants,
-                  extras: product.extras
+                  extras: extras,
+                  category: product.category,
+                  description: product.description || product.short_description
                 }}
               />
             </div>
