@@ -16,6 +16,18 @@ const DELIVERY_ZONES = [
     fee: 500,
   },
   {
+    id: 'main-campus',
+    name: 'MAIN CAMPUS',
+    areas: 'Main Campus',
+    fee: 500,
+  },
+  {
+    id: 'coker',
+    name: 'COKER',
+    areas: 'Coker',
+    fee: 500,
+  },
+  {
     id: 'school-area-2',
     name: 'SCHOOL AREA 2',
     areas: 'URP, Kasmo, Cele, Highfliers, Jagun Onilo, Akede, Okebaale',
@@ -25,7 +37,7 @@ const DELIVERY_ZONES = [
     id: 'osogbo-1',
     name: 'OSOGBO',
     areas: 'Isale-Osun, Fountain University, Ilesha Garage, Ijetu, Ire Akari, Iludun, Testing ground',
-    fee: 1000,
+    fee: 1200,
   },
   {
     id: 'osogbo-2',

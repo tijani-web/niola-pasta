@@ -27,7 +27,7 @@ export function AddToCartForm({ product }: AddToCartFormProps) {
   )
   const [selectedExtras, setSelectedExtras] = useState<{name: string, price: number}[]>([])
   
-  // Chicken choice: Peppered Chicken (+₦0) vs Crunchy Chicken (+₦200)
+  // Chicken choice: Peppered Chicken (+₦200) vs Crunchy Chicken (+₦200)
   const isChickenDish =
     product.name.toLowerCase().includes('chicken') ||
     (Boolean(product.description) && product.description!.toLowerCase().includes('chicken')) ||
@@ -50,7 +50,7 @@ export function AddToCartForm({ product }: AddToCartFormProps) {
     )
   }
 
-  const chickenExtraPrice = isChickenDish && selectedChicken === 'Crunchy Chicken' ? 200 : 0
+  const chickenExtraPrice = isChickenDish ? 200 : 0
   const unitPrice = product.price + chickenExtraPrice
   const totalExtrasPrice = selectedExtras.reduce((sum, e) => sum + e.price, 0)
   const totalPrice = (unitPrice + totalExtrasPrice) * quantity
@@ -60,7 +60,7 @@ export function AddToCartForm({ product }: AddToCartFormProps) {
 
     let variantLabel: string | null = selectedVariant
     if (isChickenDish) {
-      const chickenTag = selectedChicken === 'Crunchy Chicken' ? 'Crunchy Chicken (+₦200)' : 'Peppered Chicken'
+      const chickenTag = `${selectedChicken} (+₦200)`
       variantLabel = selectedVariant ? `${selectedVariant} • ${chickenTag}` : chickenTag
     }
 
@@ -122,7 +122,7 @@ export function AddToCartForm({ product }: AddToCartFormProps) {
               </p>
             </div>
             <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-accent/10 text-accent">
-              Included
+              +₦200
             </span>
           </div>
 
@@ -131,9 +131,9 @@ export function AddToCartForm({ product }: AddToCartFormProps) {
               {
                 name: 'Peppered Chicken' as const,
                 tag: 'Signature',
-                price: 0,
+                price: 200,
                 desc: 'Juicy chicken cooked in rich signature pepper sauce',
-                badge: 'Same Price (+₦0)'
+                badge: '+₦200'
               },
               {
                 name: 'Crunchy Chicken' as const,
