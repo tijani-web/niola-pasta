@@ -12,19 +12,7 @@ const DELIVERY_ZONES = [
   {
     id: 'school-area-1',
     name: 'SCHOOL AREA 1',
-    areas: 'Second Gate, Shogbo, Small Gate, Theology, Transformer, Jafariyah, Lick Sensation, Table Manners, Ogidan, Bethel, Shasha',
-    fee: 500,
-  },
-  {
-    id: 'main-campus',
-    name: 'MAIN CAMPUS',
-    areas: 'Main Campus',
-    fee: 500,
-  },
-  {
-    id: 'coker',
-    name: 'COKER',
-    areas: 'Coker',
+    areas: 'Second Gate, Shogbo, Small Gate, Theology, Transformer, Jafariyah, Lick Sensation, Table Manners, Ogidan, Bethel, Shasha, Main Campus',
     fee: 500,
   },
   {
@@ -36,7 +24,7 @@ const DELIVERY_ZONES = [
   {
     id: 'osogbo-1',
     name: 'OSOGBO',
-    areas: 'Isale-Osun, Fountain University, Ilesha Garage, Ijetu, Ire Akari, Iludun, Testing ground',
+    areas: 'Isale-Osun, Fountain University, Ilesha Garage, Ijetu, Ire Akari, Iludun, Testing ground, Coker',
     fee: 1200,
   },
   {
